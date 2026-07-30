@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALPHA SYSTEMS — IC // Systems &amp; Technology</title>
+<meta property="og:title" content="ALPHA SYSTEMS — Soluciones tecnológicas">
+<meta property="og:description" content="Soporte informático, optimización y seguridad con enfoque técnico y preciso.">
+<meta name="description" content="Soporte informático, optimización y seguridad con enfoque técnico y preciso.">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="brand">ALPHA SYSTEMS<small>IC // SYSTEMS &amp; TECHNOLOGY</small></div>
+    <nav class="links">
+      <a href="#servicios">Servicios</a>
+      <a href="#soporte">Soporte</a>
+      <a href="#nosotros">Nosotros</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <a href="#soporte" class="btn small">Solicitar servicio</a>
+  </div>
+</header>
+
+<section class="hero">
+  <span class="eyebrow">Soluciones tecnológicas · Precisión · Soporte · Control</span>
+  <h1>Sistemas que <br>funcionan. Siempre.</h1>
+  <p class="lead">Soporte informático · Sistemas · Redes · Mantención · Optimización.</p>
+  <div class="cta-row">
+    <a href="#soporte" class="btn">Solicitar servicio</a>
+    <a href="#servicios" class="btn ghost">Ver servicios</a>
+  </div>
+
+  <div class="status-panel">
+    <div class="id">ALPHA SYSTEMS // 01 — SYSTEM STATUS</div>
+    <div class="status-row">
+      <span class="label"><span class="dot" id="dotSystems"></span>SYSTEMS</span>
+      <span class="status-value" id="valSystems">—</span>
+    </div>
+    <div class="status-row">
+      <span class="label"><span class="dot" id="dotNetwork"></span>NETWORK</span>
+      <span class="status-value" id="valNetwork">—</span>
+    </div>
+    <div class="status-row">
+      <span class="label"><span class="dot" id="dotSupport"></span>SUPPORT</span>
+      <span class="status-value" id="valSupport">—</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="servicios">
+  <div class="section-head">
+    <span class="eyebrow">01 // SERVICIOS</span>
+    <h2>Áreas de trabajo</h2>
+  </div>
+  <div class="grid" id="servicesGrid"></div>
+</section>
+
+<section class="section" id="soporte">
+  <div class="section-head">
+    <span class="eyebrow">02 // MISSION // SUPPORT</span>
+    <h2>Iniciar una solicitud</h2>
+  </div>
+  <div class="form-box">
+    <div class="field">
+      <label>Nombre</label>
+      <input type="text" id="reqName" placeholder="Tu nombre">
+    </div>
+    <div class="field">
+      <label>Contacto (WhatsApp o email)</label>
+      <input type="text" id="reqContact" placeholder="+56 9 ...">
+    </div>
+    <div class="field">
+      <label>Tipo de servicio</label>
+      <select id="reqType">
+        <option value="soporte">Soporte informático</option>
+        <option value="optimizacion">Optimización</option>
+        <option value="seguridad">Seguridad &amp; soporte</option>
+        <option value="otro">Otro</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Descripción del problema</label>
+      <textarea id="reqDesc" placeholder="Contanos qué necesitás"></textarea>
+    </div>
+    <button class="btn" id="submitRequest">Iniciar solicitud</button>
+    <p class="modal-note">Tu solicitud queda registrada y también se abre WhatsApp para coordinar directamente con ALPHA SYSTEMS.</p>
+  </div>
+</section>
+
+<section class="section about" id="nosotros">
+  <div class="section-head" style="text-align:center;">
+    <span class="eyebrow">03 // NOSOTROS</span>
+    <h2>Sobre ALPHA SYSTEMS</h2>
+  </div>
+  <p>ALPHA SYSTEMS nace con una misión simple: entregar soluciones tecnológicas confiables, precisas y adaptadas a cada necesidad. Desde soporte informático y optimización de equipos hasta redes, sistemas y servidores, trabajamos con un enfoque técnico, ordenado y orientado a resultados.</p>
+  <div class="concepts"><span>PRECISIÓN</span><span>·</span><span>CONFIABILIDAD</span><span>·</span><span>RESPUESTA</span></div>
+</section>
+
+<footer id="contacto">
+  <div class="foot-inner">
+    <div>
+      <h3>ALPHA SYSTEMS</h3>
+      <p id="footTagline">IC // Systems &amp; Technology</p>
+    </div>
+    <div class="foot-links">
+      <a id="waLink" class="foot-icon" href="#" target="_blank" rel="noopener">
+        <span class="circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5Z"/><path d="M8.5 10.5c0 2.8 2.2 5 5 5"/></svg>
+        </span>WhatsApp
+      </a>
+      <a id="igLink" class="foot-icon" href="#" target="_blank" rel="noopener">
+        <span class="circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 8.5h3l1.2-2h7.6l1.2 2H20a1 1 0 0 1 1 1V18a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.3"/></svg>
+        </span>Instagram
+      </a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2026 ALPHA SYSTEMS — IC // SYSTEMS &amp; TECHNOLOGY</span>
+    <button class="admin-toggle" id="openAdmin">panel</button>
+  </div>
+</footer>
+
+<!-- MODAL ADMIN -->
+<div class="overlay" id="adminOverlay">
+  <div class="modal wide">
+    <button class="close" data-close>&times;</button>
+
+    <div id="adminGate">
+      <h3>Panel ALPHA SYSTEMS</h3>
+      <p class="modal-note">Acceso solo para administradores.</p>
+      <div class="field" style="margin-top:16px;">
+        <label>Email</label>
+        <input type="email" id="adminEmail">
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="adminPassword">
+      </div>
+      <button class="btn" id="adminLoginBtn">Entrar</button>
+    </div>
+
+    <div id="adminPanel" style="display:none;">
+      <div class="top-row" style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>Panel de administración</h3>
+        <button class="btn ghost small" id="adminLogoutBtn">Salir</button>
+      </div>
+
+      <h4 style="margin-top:20px; font-size:14px; color:var(--steel);">ESTADO DEL SISTEMA</h4>
+      <div class="field">
+        <label>Systems</label>
+        <select id="editSystems"><option value="ONLINE">ONLINE</option><option value="LIMITED">LIMITED</option><option value="OFFLINE">OFFLINE</option></select>
+      </div>
+      <div class="field">
+        <label>Network</label>
+        <select id="editNetwork"><option value="ONLINE">ONLINE</option><option value="LIMITED">LIMITED</option><option value="OFFLINE">OFFLINE</option></select>
+      </div>
+      <div class="field">
+        <label>Support</label>
+        <select id="editSupport"><option value="READY">READY</option><option value="LIMITED">LIMITED</option><option value="OFFLINE">OFFLINE</option></select>
+      </div>
+      <button class="btn small" id="saveStatus">Guardar estado</button>
+
+      <hr class="divider">
+      <h4 style="font-size:14px; color:var(--steel);">SERVICIOS</h4>
+      <div class="admin-list" id="servicesAdminList"></div>
+      <button class="btn ghost small" id="addService" style="margin-top:12px;">+ Agregar servicio</button>
+
+      <hr class="divider">
+      <h4 style="font-size:14px; color:var(--steel);">DATOS DE CONTACTO</h4>
+      <div class="field"><label>WhatsApp (con código país, sin +)</label><input type="text" id="settingWa"></div>
+      <div class="field"><label>Instagram (link completo)</label><input type="text" id="settingIg"></div>
+      <div class="field"><label>Frase corta del pie de página</label><input type="text" id="settingTag"></div>
+      <button class="btn small" id="saveSettings">Guardar contacto</button>
+
+      <hr class="divider">
+      <h4 style="font-size:14px; color:var(--steel);">SOLICITUDES (MISSION // SUPPORT)</h4>
+      <div id="requestsList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
