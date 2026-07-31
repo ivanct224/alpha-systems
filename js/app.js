@@ -73,91 +73,72 @@ function escapeHtml(str){
 
 /* =====================================================================
    SERVICIOS DESTACADOS — carrusel tipo vidriera / publicidad (03)
-   Son los servicios más pedidos, para que el visitante los vea rápido
-   y pueda pasar directo a cotizar. Datos fijos por ahora (no vienen de
-   Firestore). El día de mañana se pueden mover a una colección
-   "featuredServices" siguiendo el mismo patrón que "services".
+   Ahora vive en Firestore (colección "featuredServices"), igual que
+   "services", así se edita 100% desde el panel de administración.
+   Campos por doc: title, tag, badge, desc, reqType, items[], order
    ===================================================================== */
-const futureServices = [
-  {
-    tag: 'Mantención',
-    title: 'Mantención de Computadoras',
-    desc: 'Mantención preventiva para que tu equipo no falle cuando más lo necesitás.',
-    reqType: 'optimizacion',
-    items: [
-      'Limpieza física y de ventiladores',
-      'Cambio de pasta térmica',
-      'Revisión de disco y salud de componentes',
-      'Optimización de arranque y procesos',
-      'Chequeo de temperaturas y estabilidad'
-    ]
-  },
-  {
-    tag: 'Desarrollo Web',
-    title: 'Creación de Páginas Web',
-    desc: 'Sitios simples, rápidos y a medida para mostrar tu negocio o proyecto.',
-    reqType: 'otro',
-    items: [
-      'Diseño a medida, sin plantillas genéricas',
-      'Sitio responsive (celular, tablet, PC)',
-      'Formulario de contacto integrado',
-      'Publicación y dominio propio',
-      'Panel simple para editar contenido'
-    ]
-  },
-  {
-    tag: 'Instalación',
-    title: 'Instalación de Computadoras',
-    desc: 'Armado, instalación de sistema operativo y configuración inicial lista para usar.',
-    reqType: 'soporte',
-    items: [
-      'Armado o desembalaje del equipo',
-      'Instalación de Windows o Linux',
-      'Drivers, actualizaciones y antivirus',
-      'Configuración de red e impresoras',
-      'Traspaso de datos desde tu equipo anterior'
-    ]
-  }
-];
+let featuredServices = [];
+
+db.collection('featuredServices').orderBy('order').onSnapshot((snap)=>{
+  featuredServices = [];
+  snap.forEach(doc=> featuredServices.push({ id: doc.id, ...doc.data() }));
+  renderFutureCarousel();
+  if(typeof renderFeaturedAdmin === 'function' && isAdminUser) renderFeaturedAdmin();
+}, (err)=>console.error('featuredServices', err));
 
 function renderFutureCarousel(){
+  const section = document.getElementById('destacados');
   const track = document.getElementById('futureCarousel');
   const dotsBox = document.getElementById('futureDots');
   if(!track || !dotsBox) return;
 
+  if(!featuredServices.length){
+    if(section) section.style.display = 'none';
+    return;
+  }
+  if(section) section.style.display = '';
+
   track.innerHTML = '';
   dotsBox.innerHTML = '';
 
-  futureServices.forEach((s, i)=>{
+  featuredServices.forEach((s, i)=>{
     const card = document.createElement('div');
     card.className = 'future-card';
     card.innerHTML = `
-      <span class="tag">${escapeHtml(s.tag)}</span>
-      <h3>${escapeHtml(s.title)}</h3>
-      <p>${escapeHtml(s.desc)}</p>
-      <div class="more">VER DETALLE →</div>
+      <span class="badge-bubble">${escapeHtml(s.badge||'')}</span>
+      <span class="tag">${escapeHtml(s.tag||'')}</span>
+      <h3>${escapeHtml(s.title||'')}</h3>
+      <p>${escapeHtml(s.desc||'')}</p>
+      <span class="more">Ver detalle →</span>
     `;
     card.addEventListener('click', ()=> openFutureDetail(i));
     track.appendChild(card);
 
     const dot = document.createElement('button');
     dot.className = 'future-dot' + (i===0 ? ' active' : '');
-    dot.setAttribute('aria-label', 'Ir a ' + s.title);
+    dot.setAttribute('aria-label', 'Ir a ' + (s.title||''));
     dot.addEventListener('click', ()=> scrollFutureTo(i));
     dotsBox.appendChild(dot);
   });
 
   updateFutureDots();
-  track.addEventListener('scroll', debounce(updateFutureDots, 80));
 }
+
+let futureScrollListenerAttached = false;
+function attachFutureScrollListener(){
+  if(futureScrollListenerAttached) return;
+  const track = document.getElementById('futureCarousel');
+  if(!track) return;
+  track.addEventListener('scroll', debounce(updateFutureDots, 80));
+  futureScrollListenerAttached = true;
+}
+attachFutureScrollListener();
 
 function cardWidth(){
   const track = document.getElementById('futureCarousel');
   const first = track.querySelector('.future-card');
   if(!first) return 0;
-  const style = getComputedStyle(track);
-  const gap = parseFloat(style.columnGap || style.gap || '16');
-  return first.getBoundingClientRect().width + gap;
+  return first.getBoundingClientRect().width;
 }
 
 function currentFutureIndex(){
@@ -174,28 +155,30 @@ function scrollFutureTo(i){
 }
 
 function updateFutureDots(){
-  const idx = Math.min(Math.max(currentFutureIndex(), 0), futureServices.length - 1);
+  if(!featuredServices.length) return;
+  const idx = Math.min(Math.max(currentFutureIndex(), 0), featuredServices.length - 1);
   document.querySelectorAll('.future-dot').forEach((d, i)=>{
     d.classList.toggle('active', i === idx);
   });
 }
 
 function openFutureDetail(i){
-  const s = futureServices[i];
+  const s = featuredServices[i];
+  if(!s) return;
   const box = document.getElementById('futureDetailContent');
   box.innerHTML = `
     <div class="future-detail">
-      <span class="tag">${escapeHtml(s.tag)}</span>
-      <h3>${escapeHtml(s.title)}</h3>
-      <p class="desc">${escapeHtml(s.desc)}</p>
-      <ul>${s.items.map(it=>`<li>${escapeHtml(it)}</li>`).join('')}</ul>
+      <span class="tag">${escapeHtml(s.tag||'')}</span>
+      <h3>${escapeHtml(s.title||'')}</h3>
+      <p class="desc">${escapeHtml(s.desc||'')}</p>
+      <ul>${(s.items||[]).map(it=>`<li>${escapeHtml(it)}</li>`).join('')}</ul>
     </div>
     <button class="btn small" id="requestThisService" style="width:100%; justify-content:center;">Solicitar este servicio</button>
   `;
   document.getElementById('requestThisService').addEventListener('click', ()=>{
     document.getElementById('futureOverlay').classList.remove('show');
-    document.getElementById('reqType').value = s.reqType;
-    document.getElementById('reqDesc').value = `Quiero cotizar: ${s.title}`;
+    document.getElementById('reqType').value = s.reqType || 'soporte';
+    document.getElementById('reqDesc').value = `Quiero cotizar: ${s.title||''}`;
     document.getElementById('soporte').scrollIntoView({ behavior:'smooth' });
     document.getElementById('reqName').focus();
   });
@@ -216,11 +199,9 @@ document.getElementById('futurePrev')?.addEventListener('click', ()=>{
   scrollFutureTo(idx);
 });
 document.getElementById('futureNext')?.addEventListener('click', ()=>{
-  const idx = Math.min(currentFutureIndex() + 1, futureServices.length - 1);
+  const idx = Math.min(currentFutureIndex() + 1, featuredServices.length - 1);
   scrollFutureTo(idx);
 });
-
-renderFutureCarousel();
 
 /* ---------- MISSION // SUPPORT: envío de solicitud ---------- */
 document.getElementById('submitRequest').addEventListener('click', async ()=>{
