@@ -24,6 +24,7 @@
     </div>
     <nav class="links">
       <a href="#servicios">Servicios</a>
+      <a href="#destacados">Destacados</a>
       <a href="#soporte">Soporte</a>
       <a href="#nosotros">Nosotros</a>
       <a href="#contacto">Contacto</a>
@@ -64,6 +65,19 @@
     <h2>Áreas de trabajo</h2>
   </div>
   <div class="grid" id="servicesGrid"></div>
+</section>
+
+<section class="section future-section" id="destacados">
+  <div class="section-head">
+    <span class="eyebrow">·· LOS MÁS PEDIDOS ··</span>
+    <h2>Servicios destacados</h2>
+  </div>
+  <div class="future-wrap">
+    <button class="future-arrow left" id="futurePrev" aria-label="Anterior">&#8249;</button>
+    <div class="future-carousel" id="futureCarousel"></div>
+    <button class="future-arrow right" id="futureNext" aria-label="Siguiente">&#8250;</button>
+  </div>
+  <div class="future-dots" id="futureDots"></div>
 </section>
 
 <section class="section" id="soporte">
@@ -132,6 +146,14 @@
     <button class="admin-toggle" id="openAdmin">panel</button>
   </div>
 </footer>
+
+<!-- MODAL: DETALLE DE SERVICIO FUTURO -->
+<div class="overlay" id="futureOverlay">
+  <div class="modal">
+    <button class="close" data-close>&times;</button>
+    <div id="futureDetailContent"></div>
+  </div>
+</div>
 
 <!-- MODAL ADMIN -->
 <div class="overlay" id="adminOverlay">
