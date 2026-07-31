@@ -71,6 +71,157 @@ function escapeHtml(str){
   return div.innerHTML;
 }
 
+/* =====================================================================
+   SERVICIOS DESTACADOS — carrusel tipo vidriera / publicidad (03)
+   Son los servicios más pedidos, para que el visitante los vea rápido
+   y pueda pasar directo a cotizar. Datos fijos por ahora (no vienen de
+   Firestore). El día de mañana se pueden mover a una colección
+   "featuredServices" siguiendo el mismo patrón que "services".
+   ===================================================================== */
+const futureServices = [
+  {
+    tag: 'Mantención',
+    title: 'Mantención de Computadoras',
+    desc: 'Mantención preventiva para que tu equipo no falle cuando más lo necesitás.',
+    reqType: 'optimizacion',
+    items: [
+      'Limpieza física y de ventiladores',
+      'Cambio de pasta térmica',
+      'Revisión de disco y salud de componentes',
+      'Optimización de arranque y procesos',
+      'Chequeo de temperaturas y estabilidad'
+    ]
+  },
+  {
+    tag: 'Desarrollo Web',
+    title: 'Creación de Páginas Web',
+    desc: 'Sitios simples, rápidos y a medida para mostrar tu negocio o proyecto.',
+    reqType: 'otro',
+    items: [
+      'Diseño a medida, sin plantillas genéricas',
+      'Sitio responsive (celular, tablet, PC)',
+      'Formulario de contacto integrado',
+      'Publicación y dominio propio',
+      'Panel simple para editar contenido'
+    ]
+  },
+  {
+    tag: 'Instalación',
+    title: 'Instalación de Computadoras',
+    desc: 'Armado, instalación de sistema operativo y configuración inicial lista para usar.',
+    reqType: 'soporte',
+    items: [
+      'Armado o desembalaje del equipo',
+      'Instalación de Windows o Linux',
+      'Drivers, actualizaciones y antivirus',
+      'Configuración de red e impresoras',
+      'Traspaso de datos desde tu equipo anterior'
+    ]
+  }
+];
+
+function renderFutureCarousel(){
+  const track = document.getElementById('futureCarousel');
+  const dotsBox = document.getElementById('futureDots');
+  if(!track || !dotsBox) return;
+
+  track.innerHTML = '';
+  dotsBox.innerHTML = '';
+
+  futureServices.forEach((s, i)=>{
+    const card = document.createElement('div');
+    card.className = 'future-card';
+    card.innerHTML = `
+      <span class="tag">${escapeHtml(s.tag)}</span>
+      <h3>${escapeHtml(s.title)}</h3>
+      <p>${escapeHtml(s.desc)}</p>
+      <div class="more">VER DETALLE →</div>
+    `;
+    card.addEventListener('click', ()=> openFutureDetail(i));
+    track.appendChild(card);
+
+    const dot = document.createElement('button');
+    dot.className = 'future-dot' + (i===0 ? ' active' : '');
+    dot.setAttribute('aria-label', 'Ir a ' + s.title);
+    dot.addEventListener('click', ()=> scrollFutureTo(i));
+    dotsBox.appendChild(dot);
+  });
+
+  updateFutureDots();
+  track.addEventListener('scroll', debounce(updateFutureDots, 80));
+}
+
+function cardWidth(){
+  const track = document.getElementById('futureCarousel');
+  const first = track.querySelector('.future-card');
+  if(!first) return 0;
+  const style = getComputedStyle(track);
+  const gap = parseFloat(style.columnGap || style.gap || '16');
+  return first.getBoundingClientRect().width + gap;
+}
+
+function currentFutureIndex(){
+  const track = document.getElementById('futureCarousel');
+  const w = cardWidth();
+  if(!w) return 0;
+  return Math.round(track.scrollLeft / w);
+}
+
+function scrollFutureTo(i){
+  const track = document.getElementById('futureCarousel');
+  const w = cardWidth();
+  track.scrollTo({ left: i * w, behavior: 'smooth' });
+}
+
+function updateFutureDots(){
+  const idx = Math.min(Math.max(currentFutureIndex(), 0), futureServices.length - 1);
+  document.querySelectorAll('.future-dot').forEach((d, i)=>{
+    d.classList.toggle('active', i === idx);
+  });
+}
+
+function openFutureDetail(i){
+  const s = futureServices[i];
+  const box = document.getElementById('futureDetailContent');
+  box.innerHTML = `
+    <div class="future-detail">
+      <span class="tag">${escapeHtml(s.tag)}</span>
+      <h3>${escapeHtml(s.title)}</h3>
+      <p class="desc">${escapeHtml(s.desc)}</p>
+      <ul>${s.items.map(it=>`<li>${escapeHtml(it)}</li>`).join('')}</ul>
+    </div>
+    <button class="btn small" id="requestThisService" style="width:100%; justify-content:center;">Solicitar este servicio</button>
+  `;
+  document.getElementById('requestThisService').addEventListener('click', ()=>{
+    document.getElementById('futureOverlay').classList.remove('show');
+    document.getElementById('reqType').value = s.reqType;
+    document.getElementById('reqDesc').value = `Quiero cotizar: ${s.title}`;
+    document.getElementById('soporte').scrollIntoView({ behavior:'smooth' });
+    document.getElementById('reqName').focus();
+  });
+  document.getElementById('futureOverlay').classList.add('show');
+  attachCloseHandlers();
+}
+
+function debounce(fn, wait){
+  let t;
+  return function(...args){
+    clearTimeout(t);
+    t = setTimeout(()=> fn.apply(this, args), wait);
+  };
+}
+
+document.getElementById('futurePrev')?.addEventListener('click', ()=>{
+  const idx = Math.max(currentFutureIndex() - 1, 0);
+  scrollFutureTo(idx);
+});
+document.getElementById('futureNext')?.addEventListener('click', ()=>{
+  const idx = Math.min(currentFutureIndex() + 1, futureServices.length - 1);
+  scrollFutureTo(idx);
+});
+
+renderFutureCarousel();
+
 /* ---------- MISSION // SUPPORT: envío de solicitud ---------- */
 document.getElementById('submitRequest').addEventListener('click', async ()=>{
   const name = document.getElementById('reqName').value.trim();
@@ -108,9 +259,18 @@ document.getElementById('submitRequest').addEventListener('click', async ()=>{
 });
 
 /* ---------- Overlays genéricos ---------- */
-document.querySelectorAll('[data-close]').forEach(btn=>{
-  btn.addEventListener('click', (e)=> e.target.closest('.overlay').classList.remove('show'));
-});
+function attachCloseHandlers(){
+  document.querySelectorAll('[data-close]').forEach(btn=>{
+    btn.removeEventListener('click', closeOverlayFromBtn);
+    btn.addEventListener('click', closeOverlayFromBtn);
+  });
+}
+function closeOverlayFromBtn(e){
+  const ov = e.target.closest('.overlay');
+  if(ov) ov.classList.remove('show');
+}
+attachCloseHandlers();
+
 document.querySelectorAll('.overlay').forEach(ov=>{
   ov.addEventListener('click', (e)=>{ if(e.target === ov) ov.classList.remove('show'); });
 });
