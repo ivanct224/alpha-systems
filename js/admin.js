@@ -22,6 +22,7 @@ auth.onAuthStateChanged(async (user)=>{
       document.getElementById('adminPanel').style.display = 'block';
       loadSettingsIntoForm();
       renderServicesAdmin();
+      renderFeaturedAdmin();
       renderRequests();
     }else{
       toast('Esta cuenta no tiene permisos de administrador');
@@ -104,6 +105,75 @@ document.getElementById('addService').addEventListener('click', async ()=>{
     order: services.length
   });
   toast('Servicio agregado');
+});
+
+/* ---------- DESTACADOS (carrusel de inicio, colección "featuredServices") ---------- */
+function renderFeaturedAdmin(){
+  const list = document.getElementById('featuredAdminList');
+  if(!list) return;
+  list.innerHTML = '';
+  featuredServices.forEach(s=>{
+    const row = document.createElement('div');
+    row.className = 'admin-item';
+    row.innerHTML = `
+      <div class="top-row">
+        <input type="text" value="${s.title||''}" data-field="title" placeholder="Título" style="width:100%;">
+        <button class="del" data-del>&times;</button>
+      </div>
+      <div class="field">
+        <label>Etiqueta pequeña (ej: Mantención)</label>
+        <input type="text" value="${s.tag||''}" data-field="tag">
+      </div>
+      <div class="field">
+        <label>Badge / burbuja (ej: TOP, MÁS PEDIDO, PREFERIDO)</label>
+        <input type="text" value="${s.badge||''}" data-field="badge">
+      </div>
+      <div class="field">
+        <label>Descripción corta</label>
+        <textarea data-field="desc" placeholder="Descripción breve del servicio">${s.desc||''}</textarea>
+      </div>
+      <div class="field">
+        <label>Tipo de solicitud (al tocar "Solicitar este servicio")</label>
+        <select data-field="reqType">
+          <option value="soporte" ${s.reqType==='soporte'?'selected':''}>Soporte informático</option>
+          <option value="optimizacion" ${s.reqType==='optimizacion'?'selected':''}>Optimización</option>
+          <option value="seguridad" ${s.reqType==='seguridad'?'selected':''}>Seguridad &amp; soporte</option>
+          <option value="otro" ${s.reqType==='otro'?'selected':''}>Otro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Detalle (un ítem por línea, se muestra al hacer clic)</label>
+        <textarea data-field="items" placeholder="Un ítem por línea">${(s.items||[]).join('\n')}</textarea>
+      </div>
+    `;
+    row.querySelectorAll('[data-field]').forEach(inp=>{
+      inp.addEventListener('change', async ()=>{
+        const field = inp.getAttribute('data-field');
+        const value = field === 'items'
+          ? inp.value.split('\n').map(x=>x.trim()).filter(Boolean)
+          : inp.value;
+        await db.collection('featuredServices').doc(s.id).set({ [field]: value }, { merge:true });
+      });
+    });
+    row.querySelector('[data-del]').addEventListener('click', async ()=>{
+      if(!confirm('¿Borrar este destacado del carrusel?')) return;
+      await db.collection('featuredServices').doc(s.id).delete();
+    });
+    list.appendChild(row);
+  });
+}
+
+document.getElementById('addFeatured').addEventListener('click', async ()=>{
+  await db.collection('featuredServices').add({
+    title: 'Nuevo destacado',
+    tag: 'Servicio',
+    badge: 'TOP',
+    desc: 'Descripción breve del servicio.',
+    reqType: 'soporte',
+    items: ['Detalle 1'],
+    order: featuredServices.length
+  });
+  toast('Destacado agregado al carrusel');
 });
 
 /* ---------- SOLICITUDES ---------- */
