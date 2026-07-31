@@ -24,12 +24,12 @@
       Esto es lo que le da permisos de administrador.
    ===================================================================== */
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.firebasestorage.app",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyDRKrSHZXOg4flCQdqvlfSI0o6d-tfFrKo",
+  authDomain: "alpha-system-e1564.firebaseapp.com",
+  projectId: "alpha-system-e1564",
+  storageBucket: "alpha-system-e1564.firebasestorage.app",
+  messagingSenderId: "157749440203",
+  appId: "1:157749440203:web:8d7838547e41d9988c754e"
 };
 
 firebase.initializeApp(firebaseConfig);
