@@ -121,12 +121,24 @@ function renderFeaturedAdmin(){
         <button class="del" data-del>&times;</button>
       </div>
       <div class="field">
+        <label>Imagen del banner (recomendada horizontal, ej. 1200×600 o más ancha)</label>
+        <input type="file" accept="image/*" data-imgupload>
+        <div data-imgpreview style="margin-top:10px;">
+          ${s.imageUrl ? `<img src="${s.imageUrl}" style="width:100%; max-height:160px; object-fit:cover; border-radius:8px; display:block;">
+            <button class="btn ghost small" data-imgremove style="margin-top:8px;">Quitar imagen</button>` : ''}
+        </div>
+      </div>
+      <div class="field">
         <label>Etiqueta pequeña (ej: Mantención)</label>
         <input type="text" value="${s.tag||''}" data-field="tag">
       </div>
       <div class="field">
         <label>Badge / burbuja (ej: TOP, MÁS PEDIDO, PREFERIDO)</label>
         <input type="text" value="${s.badge||''}" data-field="badge">
+      </div>
+      <div class="field">
+        <label>Valor (opcional, ej: "Desde $19.990")</label>
+        <input type="text" value="${s.price||''}" data-field="price" placeholder="Desde $19.990">
       </div>
       <div class="field">
         <label>Descripción corta</label>
@@ -146,6 +158,43 @@ function renderFeaturedAdmin(){
         <textarea data-field="items" placeholder="Un ítem por línea">${(s.items||[]).join('\n')}</textarea>
       </div>
     `;
+    const imgInput = row.querySelector('[data-imgupload]');
+    const imgPreview = row.querySelector('[data-imgpreview]');
+    imgInput.addEventListener('change', async ()=>{
+      const file = imgInput.files[0];
+      if(!file) return;
+      if(!file.type.startsWith('image/')){ toast('Elegí un archivo de imagen'); return; }
+      toast('Subiendo imagen...');
+      try{
+        const path = `featured/${s.id}/${Date.now()}_${file.name}`;
+        const ref = storage.ref().child(path);
+        await ref.put(file);
+        const url = await ref.getDownloadURL();
+        await db.collection('featuredServices').doc(s.id).set({ imageUrl: url }, { merge:true });
+        s.imageUrl = url;
+        imgPreview.innerHTML = `<img src="${url}" style="width:100%; max-height:160px; object-fit:cover; border-radius:8px; display:block;">
+          <button class="btn ghost small" data-imgremove style="margin-top:8px;">Quitar imagen</button>`;
+        imgPreview.querySelector('[data-imgremove]').addEventListener('click', async ()=>{
+          await db.collection('featuredServices').doc(s.id).set({ imageUrl: '' }, { merge:true });
+          s.imageUrl = '';
+          imgPreview.innerHTML = '';
+          toast('Imagen quitada');
+        });
+        toast('Imagen actualizada');
+      }catch(err){
+        console.error(err);
+        toast('No se pudo subir la imagen. Revisá los permisos de Storage.');
+      }
+    });
+    const removeBtn = row.querySelector('[data-imgremove]');
+    if(removeBtn){
+      removeBtn.addEventListener('click', async ()=>{
+        await db.collection('featuredServices').doc(s.id).set({ imageUrl: '' }, { merge:true });
+        s.imageUrl = '';
+        imgPreview.innerHTML = '';
+        toast('Imagen quitada');
+      });
+    }
     row.querySelectorAll('[data-field]').forEach(inp=>{
       inp.addEventListener('change', async ()=>{
         const field = inp.getAttribute('data-field');
@@ -158,6 +207,7 @@ function renderFeaturedAdmin(){
     row.querySelector('[data-del]').addEventListener('click', async ()=>{
       if(!confirm('¿Borrar este destacado del carrusel?')) return;
       await db.collection('featuredServices').doc(s.id).delete();
+      row.remove();
     });
     list.appendChild(row);
   });
@@ -168,12 +218,14 @@ document.getElementById('addFeatured').addEventListener('click', async ()=>{
     title: 'Nuevo destacado',
     tag: 'Servicio',
     badge: 'TOP',
+    price: '',
     desc: 'Descripción breve del servicio.',
     reqType: 'soporte',
     items: ['Detalle 1'],
     order: featuredServices.length
   });
   toast('Destacado agregado al carrusel');
+  setTimeout(renderFeaturedAdmin, 400);
 });
 
 /* ---------- SOLICITUDES ---------- */
