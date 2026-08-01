@@ -83,7 +83,6 @@ db.collection('featuredServices').orderBy('order').onSnapshot((snap)=>{
   featuredServices = [];
   snap.forEach(doc=> featuredServices.push({ id: doc.id, ...doc.data() }));
   renderFutureCarousel();
-  if(typeof renderFeaturedAdmin === 'function' && isAdminUser) renderFeaturedAdmin();
 }, (err)=>console.error('featuredServices', err));
 
 function renderFutureCarousel(){
@@ -104,11 +103,16 @@ function renderFutureCarousel(){
   featuredServices.forEach((s, i)=>{
     const card = document.createElement('div');
     card.className = 'future-card';
+    if(s.imageUrl){
+      card.style.backgroundImage =
+        `linear-gradient(120deg, rgba(22,58,92,.90) 0%, rgba(31,78,121,.62) 50%, rgba(44,100,148,.30) 100%), url('${s.imageUrl}')`;
+    }
     card.innerHTML = `
       <span class="badge-bubble">${escapeHtml(s.badge||'')}</span>
       <span class="tag">${escapeHtml(s.tag||'')}</span>
       <h3>${escapeHtml(s.title||'')}</h3>
       <p>${escapeHtml(s.desc||'')}</p>
+      ${s.price ? `<span class="price-tag">${escapeHtml(s.price)}</span>` : ''}
       <span class="more">Ver detalle →</span>
     `;
     card.addEventListener('click', ()=> openFutureDetail(i));
@@ -117,11 +121,12 @@ function renderFutureCarousel(){
     const dot = document.createElement('button');
     dot.className = 'future-dot' + (i===0 ? ' active' : '');
     dot.setAttribute('aria-label', 'Ir a ' + (s.title||''));
-    dot.addEventListener('click', ()=> scrollFutureTo(i));
+    dot.addEventListener('click', ()=>{ scrollFutureTo(i); startFutureAutoplay(); });
     dotsBox.appendChild(dot);
   });
 
   updateFutureDots();
+  startFutureAutoplay();
 }
 
 let futureScrollListenerAttached = false;
@@ -130,9 +135,33 @@ function attachFutureScrollListener(){
   const track = document.getElementById('futureCarousel');
   if(!track) return;
   track.addEventListener('scroll', debounce(updateFutureDots, 80));
+  track.addEventListener('mouseenter', stopFutureAutoplay);
+  track.addEventListener('mouseleave', startFutureAutoplay);
+  track.addEventListener('touchstart', stopFutureAutoplay, { passive:true });
+  track.addEventListener('touchend', ()=> setTimeout(startFutureAutoplay, 2500), { passive:true });
   futureScrollListenerAttached = true;
 }
 attachFutureScrollListener();
+
+/* ---------- Auto-avance del carrusel (tipo publicidad) ---------- */
+const FUTURE_AUTOPLAY_MS = 4500; // tiempo por card: ni tan rápido ni tan lento para alcanzar a leer
+let futureAutoplayTimer = null;
+
+function startFutureAutoplay(){
+  stopFutureAutoplay();
+  if(featuredServices.length <= 1) return;
+  futureAutoplayTimer = setInterval(()=>{
+    const next = (currentFutureIndex() + 1) % featuredServices.length;
+    scrollFutureTo(next);
+  }, FUTURE_AUTOPLAY_MS);
+}
+
+function stopFutureAutoplay(){
+  if(futureAutoplayTimer){
+    clearInterval(futureAutoplayTimer);
+    futureAutoplayTimer = null;
+  }
+}
 
 function cardWidth(){
   const track = document.getElementById('futureCarousel');
@@ -165,18 +194,34 @@ function updateFutureDots(){
 function openFutureDetail(i){
   const s = featuredServices[i];
   if(!s) return;
+  stopFutureAutoplay();
   const box = document.getElementById('futureDetailContent');
   box.innerHTML = `
     <div class="future-detail">
       <span class="tag">${escapeHtml(s.tag||'')}</span>
       <h3>${escapeHtml(s.title||'')}</h3>
+      ${s.price ? `<div class="detail-price">${escapeHtml(s.price)}</div>` : ''}
       <p class="desc">${escapeHtml(s.desc||'')}</p>
       <ul>${(s.items||[]).map(it=>`<li>${escapeHtml(it)}</li>`).join('')}</ul>
     </div>
-    <button class="btn small" id="requestThisService" style="width:100%; justify-content:center;">Solicitar este servicio</button>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <button class="btn small" id="reserveOnWhatsapp" style="width:100%; justify-content:center;">Reservar por WhatsApp</button>
+      <button class="btn ghost small" id="requestThisService" style="width:100%; justify-content:center;">Solicitar por formulario</button>
+    </div>
   `;
+  document.getElementById('reserveOnWhatsapp').addEventListener('click', ()=>{
+    if(!settings.whatsapp){
+      toast('Todavía no hay un WhatsApp configurado en el panel');
+      return;
+    }
+    const msg = encodeURIComponent(`Hola ALPHA SYSTEMS, quiero reservar/cotizar: ${s.title||''}`);
+    window.open(`https://wa.me/${settings.whatsapp}?text=${msg}`, '_blank');
+    document.getElementById('futureOverlay').classList.remove('show');
+    startFutureAutoplay();
+  });
   document.getElementById('requestThisService').addEventListener('click', ()=>{
     document.getElementById('futureOverlay').classList.remove('show');
+    startFutureAutoplay();
     document.getElementById('reqType').value = s.reqType || 'soporte';
     document.getElementById('reqDesc').value = `Quiero cotizar: ${s.title||''}`;
     document.getElementById('soporte').scrollIntoView({ behavior:'smooth' });
@@ -197,10 +242,12 @@ function debounce(fn, wait){
 document.getElementById('futurePrev')?.addEventListener('click', ()=>{
   const idx = Math.max(currentFutureIndex() - 1, 0);
   scrollFutureTo(idx);
+  startFutureAutoplay();
 });
 document.getElementById('futureNext')?.addEventListener('click', ()=>{
   const idx = Math.min(currentFutureIndex() + 1, featuredServices.length - 1);
   scrollFutureTo(idx);
+  startFutureAutoplay();
 });
 
 /* ---------- MISSION // SUPPORT: envío de solicitud ---------- */
@@ -248,10 +295,18 @@ function attachCloseHandlers(){
 }
 function closeOverlayFromBtn(e){
   const ov = e.target.closest('.overlay');
-  if(ov) ov.classList.remove('show');
+  if(ov){
+    ov.classList.remove('show');
+    if(ov.id === 'futureOverlay') startFutureAutoplay();
+  }
 }
 attachCloseHandlers();
 
 document.querySelectorAll('.overlay').forEach(ov=>{
-  ov.addEventListener('click', (e)=>{ if(e.target === ov) ov.classList.remove('show'); });
+  ov.addEventListener('click', (e)=>{
+    if(e.target === ov){
+      ov.classList.remove('show');
+      if(ov.id === 'futureOverlay') startFutureAutoplay();
+    }
+  });
 });
