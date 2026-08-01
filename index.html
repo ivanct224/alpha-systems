@@ -29,6 +29,10 @@
       <a href="#nosotros">Nosotros</a>
       <a href="#contacto">Contacto</a>
     </nav>
+    <div class="nav-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="text" id="catalogSearch" placeholder="Buscar servicio..." aria-label="Buscar en el catálogo de servicios">
+    </div>
     <a href="#soporte" class="btn small">Solicitar servicio</a>
   </div>
 </header>
@@ -78,6 +82,7 @@
     <h2>Áreas de trabajo</h2>
   </div>
   <div class="grid" id="servicesGrid"></div>
+  <p class="no-results" id="noServicesMatch" style="display:none;">No encontramos servicios que coincidan con tu búsqueda.</p>
 </section>
 
 <section class="section" id="soporte">
