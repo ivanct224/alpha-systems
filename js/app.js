@@ -42,7 +42,10 @@ db.collection('content').doc('settings').onSnapshot((snap)=>{
   }
 }, (err)=>console.error('settings', err));
 
-/* ---------- SERVICIOS (services/) ---------- */
+/* ---------- SERVICIOS (services/) ----------
+   Cada servicio puede tener: title, desc (resumen corto para la
+   tarjeta), imageUrl (foto), reqType (para prellenar el formulario)
+   e items[] (detalle en viñetas que se ve al hacer clic). */
 db.collection('services').orderBy('order').onSnapshot((snap)=>{
   services = [];
   snap.forEach(doc=> services.push({ id: doc.id, ...doc.data() }));
@@ -55,14 +58,88 @@ function renderServices(){
   services.forEach((s, i)=>{
     const card = document.createElement('div');
     card.className = 'card';
-    const items = (s.items||[]).map(it=>`<li>${escapeHtml(it)}</li>`).join('');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-label', `Ver detalle de ${s.title||'servicio'}`);
+
+    const summary = (s.desc && s.desc.trim())
+      ? s.desc
+      : ((s.items||[])[0] || 'Servicio profesional de sistemas y soporte técnico.');
+
+    const mediaStyle = s.imageUrl
+      ? ` style="background-image:linear-gradient(180deg, rgba(22,58,92,0.05) 0%, rgba(22,58,92,0.55) 100%), url('${s.imageUrl}')"`
+      : '';
+
     card.innerHTML = `
-      <div class="code">// 0${i+1}</div>
-      <h3>${escapeHtml(s.title||'')}</h3>
-      <ul>${items}</ul>
+      <div class="card-media"${mediaStyle}>
+        <span class="code">MOD-0${i+1}</span>
+        <button class="wa-btn" type="button" data-wa-reserve aria-label="Reservar ${escapeHtml(s.title||'este servicio')} por WhatsApp">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5Z"/><path d="M8.5 10.5c0 2.8 2.2 5 5 5"/></svg>
+          Reservar
+        </button>
+      </div>
+      <div class="card-body">
+        <h3>${escapeHtml(s.title||'')}</h3>
+        <p class="summary">${escapeHtml(summary)}</p>
+        <span class="view-detail">Ver detalle →</span>
+      </div>
     `;
+
+    card.querySelector('[data-wa-reserve]').addEventListener('click', (e)=>{
+      e.stopPropagation();
+      reserveServiceOnWhatsapp(s);
+    });
+    card.addEventListener('click', ()=> openServiceDetail(i));
+    card.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        openServiceDetail(i);
+      }
+    });
+
     grid.appendChild(card);
   });
+}
+
+function reserveServiceOnWhatsapp(s){
+  if(!settings.whatsapp){
+    toast('Todavía no hay un WhatsApp configurado en el panel');
+    return;
+  }
+  const msg = encodeURIComponent(`Hola ALPHA SYSTEMS, quiero reservar/cotizar: ${s.title||''}`);
+  window.open(`https://wa.me/${settings.whatsapp}?text=${msg}`, '_blank');
+}
+
+function openServiceDetail(i){
+  const s = services[i];
+  if(!s) return;
+  const box = document.getElementById('serviceDetailContent');
+  box.innerHTML = `
+    <div class="future-detail">
+      ${s.imageUrl ? `<img src="${s.imageUrl}" alt="${escapeHtml(s.title||'')}" style="width:100%; height:190px; object-fit:cover; border-radius:10px; margin-bottom:16px;">` : ''}
+      <span class="tag">MOD-0${i+1}</span>
+      <h3>${escapeHtml(s.title||'')}</h3>
+      ${s.desc ? `<p class="desc">${escapeHtml(s.desc)}</p>` : ''}
+      <ul>${(s.items||[]).map(it=>`<li>${escapeHtml(it)}</li>`).join('')}</ul>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <button class="btn small" id="reserveServiceWa" style="width:100%; justify-content:center;">Reservar por WhatsApp</button>
+      <button class="btn ghost small" id="requestThisServiceForm" style="width:100%; justify-content:center;">Solicitar por formulario</button>
+    </div>
+  `;
+  document.getElementById('reserveServiceWa').addEventListener('click', ()=>{
+    reserveServiceOnWhatsapp(s);
+    document.getElementById('serviceOverlay').classList.remove('show');
+  });
+  document.getElementById('requestThisServiceForm').addEventListener('click', ()=>{
+    document.getElementById('serviceOverlay').classList.remove('show');
+    document.getElementById('reqType').value = s.reqType || 'soporte';
+    document.getElementById('reqDesc').value = `Quiero cotizar: ${s.title||''}`;
+    document.getElementById('soporte').scrollIntoView({ behavior:'smooth' });
+    document.getElementById('reqName').focus();
+  });
+  document.getElementById('serviceOverlay').classList.add('show');
+  attachCloseHandlers();
 }
 
 function escapeHtml(str){
