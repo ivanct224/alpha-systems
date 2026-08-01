@@ -147,7 +147,15 @@
   </div>
 </footer>
 
-<!-- MODAL: DETALLE DE SERVICIO FUTURO -->
+<!-- MODAL: DETALLE DE SERVICIO (sección 01 // SERVICIOS) -->
+<div class="overlay" id="serviceOverlay">
+  <div class="modal">
+    <button class="close" data-close>&times;</button>
+    <div id="serviceDetailContent"></div>
+  </div>
+</div>
+
+<!-- MODAL: DETALLE DE SERVICIO FUTURO (destacados) -->
 <div class="overlay" id="futureOverlay">
   <div class="modal">
     <button class="close" data-close>&times;</button>
@@ -197,6 +205,7 @@
 
       <hr class="divider">
       <h4 style="font-size:14px; color:var(--steel);">SERVICIOS</h4>
+      <p class="modal-note" style="margin-top:0; margin-bottom:12px;">Cada servicio puede llevar una foto, una descripción corta (la que se ve en la tarjeta) y un detalle en viñetas (el que se ve al hacer clic).</p>
       <div class="admin-list" id="servicesAdminList"></div>
       <button class="btn ghost small" id="addService" style="margin-top:12px;">+ Agregar servicio</button>
 
