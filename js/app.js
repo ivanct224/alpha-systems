@@ -58,6 +58,7 @@ function renderServices(){
   services.forEach((s, i)=>{
     const card = document.createElement('div');
     card.className = 'card';
+    card.dataset.serviceIndex = i;
     card.setAttribute('tabindex', '0');
     card.setAttribute('role', 'button');
     card.setAttribute('aria-label', `Ver detalle de ${s.title||'servicio'}`);
@@ -99,7 +100,60 @@ function renderServices(){
 
     grid.appendChild(card);
   });
+
+  applyCatalogSearch(document.getElementById('catalogSearch')?.value || '');
 }
+
+/* ---------- BUSCADOR DEL CATÁLOGO (header) ----------
+   Filtra en vivo las tarjetas de "Áreas de trabajo" según lo que
+   escriba el usuario, buscando en el título, la descripción corta
+   y el detalle de cada servicio publicado. */
+function applyCatalogSearch(rawQuery){
+  const grid = document.getElementById('servicesGrid');
+  const noResults = document.getElementById('noServicesMatch');
+  if(!grid) return;
+  const q = (rawQuery||'').trim().toLowerCase();
+  let anyVisible = false;
+
+  grid.querySelectorAll('.card').forEach(card=>{
+    const s = services[Number(card.dataset.serviceIndex)];
+    if(!s){ card.style.display = ''; return; }
+    const haystack = [s.title, s.desc, ...(s.items||[])].filter(Boolean).join(' ').toLowerCase();
+    const match = !q || haystack.includes(q);
+    card.style.display = match ? '' : 'none';
+    if(match) anyVisible = true;
+  });
+
+  if(noResults) noResults.style.display = (q && !anyVisible) ? 'block' : 'none';
+}
+
+const catalogSearchInput = document.getElementById('catalogSearch');
+const navSearchBox = document.querySelector('.nav-search');
+
+catalogSearchInput?.addEventListener('input', (e)=>{
+  applyCatalogSearch(e.target.value);
+});
+
+catalogSearchInput?.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    document.getElementById('servicios')?.scrollIntoView({ behavior:'smooth' });
+  }
+});
+
+/* En pantallas angostas el buscador arranca colapsado (solo el ícono);
+   se expande al tocarlo y vuelve a colapsar si queda vacío. */
+navSearchBox?.addEventListener('click', ()=>{
+  if(!navSearchBox.classList.contains('active')){
+    navSearchBox.classList.add('active');
+    catalogSearchInput?.focus();
+  }
+});
+catalogSearchInput?.addEventListener('blur', ()=>{
+  if(!catalogSearchInput.value.trim()){
+    navSearchBox?.classList.remove('active');
+  }
+});
 
 function reserveServiceOnWhatsapp(s){
   if(!settings.whatsapp){
