@@ -67,7 +67,10 @@ document.getElementById('saveSettings').addEventListener('click', async ()=>{
   toast('Contacto actualizado');
 });
 
-/* ---------- SERVICIOS ---------- */
+/* ---------- SERVICIOS ----------
+   Cada servicio guarda: title, desc (resumen corto para la tarjeta),
+   imageUrl (foto), reqType (tipo de solicitud a prellenar) e items[]
+   (detalle en viñetas que se muestra al hacer clic en la tarjeta). */
 function renderServicesAdmin(){
   const list = document.getElementById('servicesAdminList');
   list.innerHTML = '';
@@ -76,11 +79,72 @@ function renderServicesAdmin(){
     row.className = 'admin-item';
     row.innerHTML = `
       <div class="top-row">
-        <input type="text" value="${s.title||''}" data-field="title" style="width:70%;">
+        <input type="text" value="${s.title||''}" data-field="title" placeholder="Título" style="width:100%;">
         <button class="del" data-del>&times;</button>
       </div>
-      <textarea data-field="items" placeholder="Un ítem por línea">${(s.items||[]).join('\n')}</textarea>
+      <div class="field">
+        <label>Foto del servicio (recomendada 4:3, ej. 800×600)</label>
+        <input type="file" accept="image/*" data-imgupload>
+        <div data-imgpreview style="margin-top:10px;">
+          ${s.imageUrl ? `<img src="${s.imageUrl}" style="width:100%; max-height:160px; object-fit:cover; border-radius:8px; display:block;">
+            <button class="btn ghost small" data-imgremove style="margin-top:8px;">Quitar imagen</button>` : ''}
+        </div>
+      </div>
+      <div class="field">
+        <label>Descripción corta (se ve en la tarjeta)</label>
+        <textarea data-field="desc" placeholder="Ej: Diagnóstico, limpieza y revisión de rendimiento de tu equipo.">${s.desc||''}</textarea>
+      </div>
+      <div class="field">
+        <label>Tipo de solicitud (al tocar "Solicitar por formulario")</label>
+        <select data-field="reqType">
+          <option value="soporte" ${s.reqType==='soporte'?'selected':''}>Soporte informático</option>
+          <option value="optimizacion" ${s.reqType==='optimizacion'?'selected':''}>Optimización</option>
+          <option value="seguridad" ${s.reqType==='seguridad'?'selected':''}>Seguridad &amp; soporte</option>
+          <option value="otro" ${s.reqType==='otro'?'selected':''}>Otro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Detalle (un ítem por línea, se muestra al hacer clic en la tarjeta)</label>
+        <textarea data-field="items" placeholder="Un ítem por línea">${(s.items||[]).join('\n')}</textarea>
+      </div>
     `;
+    const imgInput = row.querySelector('[data-imgupload]');
+    const imgPreview = row.querySelector('[data-imgpreview]');
+    imgInput.addEventListener('change', async ()=>{
+      const file = imgInput.files[0];
+      if(!file) return;
+      if(!file.type.startsWith('image/')){ toast('Elegí un archivo de imagen'); return; }
+      toast('Subiendo imagen...');
+      try{
+        const path = `services/${s.id}/${Date.now()}_${file.name}`;
+        const ref = storage.ref().child(path);
+        await ref.put(file);
+        const url = await ref.getDownloadURL();
+        await db.collection('services').doc(s.id).set({ imageUrl: url }, { merge:true });
+        s.imageUrl = url;
+        imgPreview.innerHTML = `<img src="${url}" style="width:100%; max-height:160px; object-fit:cover; border-radius:8px; display:block;">
+          <button class="btn ghost small" data-imgremove style="margin-top:8px;">Quitar imagen</button>`;
+        imgPreview.querySelector('[data-imgremove]').addEventListener('click', async ()=>{
+          await db.collection('services').doc(s.id).set({ imageUrl: '' }, { merge:true });
+          s.imageUrl = '';
+          imgPreview.innerHTML = '';
+          toast('Imagen quitada');
+        });
+        toast('Imagen actualizada');
+      }catch(err){
+        console.error(err);
+        toast('No se pudo subir la imagen. Revisá los permisos de Storage.');
+      }
+    });
+    const removeBtn = row.querySelector('[data-imgremove]');
+    if(removeBtn){
+      removeBtn.addEventListener('click', async ()=>{
+        await db.collection('services').doc(s.id).set({ imageUrl: '' }, { merge:true });
+        s.imageUrl = '';
+        imgPreview.innerHTML = '';
+        toast('Imagen quitada');
+      });
+    }
     row.querySelectorAll('[data-field]').forEach(inp=>{
       inp.addEventListener('change', async ()=>{
         const field = inp.getAttribute('data-field');
@@ -101,10 +165,14 @@ function renderServicesAdmin(){
 document.getElementById('addService').addEventListener('click', async ()=>{
   await db.collection('services').add({
     title: 'Nuevo servicio',
+    desc: 'Descripción breve del servicio.',
+    imageUrl: '',
+    reqType: 'soporte',
     items: ['Ítem de ejemplo'],
     order: services.length
   });
   toast('Servicio agregado');
+  setTimeout(renderServicesAdmin, 400);
 });
 
 /* ---------- DESTACADOS (carrusel de inicio, colección "featuredServices") ---------- */
