@@ -113,11 +113,12 @@ nav.links a:hover{opacity:1; color:var(--navy);}
 .future-carousel::-webkit-scrollbar{display:none;}
 .future-card{
   flex:0 0 100%; scroll-snap-align:center; cursor:pointer;
-  position:relative; overflow:hidden; min-height:280px;
+  position:relative; overflow:hidden; min-height:400px;
   background:
     radial-gradient(circle at 88% 18%, rgba(255,255,255,0.08), transparent 42%),
     radial-gradient(circle at 6% 90%, rgba(255,255,255,0.06), transparent 40%),
     linear-gradient(120deg, var(--navy-deep) 0%, var(--navy) 60%, #2C6494 100%);
+  background-size:cover; background-position:center;
   border-radius:16px;
   display:flex; flex-direction:column; justify-content:center;
   padding:40px 56px;
@@ -137,7 +138,11 @@ nav.links a:hover{opacity:1; color:var(--navy);}
 .future-card h3{
   font-size:clamp(24px,4vw,34px); color:#fff; line-height:1.12; max-width:420px; margin-bottom:14px;
 }
-.future-card p{font-size:14.5px; color:#D7E2EC; max-width:380px; margin-bottom:24px;}
+.future-card p{font-size:14.5px; color:#D7E2EC; max-width:380px; margin-bottom:14px;}
+.future-card .price-tag{
+  display:inline-block; font-family:'Consolas',monospace; font-size:14px; font-weight:700;
+  color:#fff; margin-bottom:16px;
+}
 .future-card .more{
   align-self:flex-start; font-family:'Consolas',monospace; font-size:12px; letter-spacing:0.06em;
   color:var(--navy-deep); background:#fff; padding:11px 22px; border-radius:8px;
@@ -165,6 +170,9 @@ nav.links a:hover{opacity:1; color:var(--navy);}
   padding:4px 10px; border:1px solid var(--line); border-radius:99px; margin-bottom:14px;
 }
 .future-detail h3{font-size:22px; margin-bottom:10px;}
+.future-detail .detail-price{
+  font-family:'Consolas',monospace; font-size:16px; font-weight:700; color:var(--navy); margin-bottom:10px;
+}
 .future-detail p.desc{color:var(--steel); font-size:14px; margin-bottom:18px;}
 .future-detail ul{list-style:none; margin-bottom:22px;}
 .future-detail li{
@@ -174,7 +182,7 @@ nav.links a:hover{opacity:1; color:var(--navy);}
 .future-detail li::before{content:'—'; position:absolute; left:0; color:var(--steel);}
 
 @media (max-width:640px){
-  .future-card{padding:32px 24px; min-height:260px;}
+  .future-card{padding:32px 24px; min-height:340px;}
   .future-arrow{width:34px; height:34px; font-size:18px;}
   .future-arrow.left{margin-right:-17px;}
   .future-arrow.right{margin-left:-17px;}
