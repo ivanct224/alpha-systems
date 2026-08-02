@@ -55,6 +55,7 @@ document.getElementById('saveStatus').addEventListener('click', async ()=>{
 function loadSettingsIntoForm(){
   document.getElementById('settingWa').value = settings.whatsapp || '';
   document.getElementById('settingIg').value = settings.instagram || '';
+  document.getElementById('settingTt').value = settings.tiktok || '';
   document.getElementById('settingTag').value = settings.tagline || '';
 }
 
@@ -62,6 +63,7 @@ document.getElementById('saveSettings').addEventListener('click', async ()=>{
   await db.collection('content').doc('settings').set({
     whatsapp: document.getElementById('settingWa').value.replace(/\D/g,''),
     instagram: document.getElementById('settingIg').value.trim(),
+    tiktok: document.getElementById('settingTt').value.trim(),
     tagline: document.getElementById('settingTag').value.trim()
   });
   toast('Contacto actualizado');
