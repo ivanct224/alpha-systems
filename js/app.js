@@ -234,14 +234,9 @@ function renderFutureCarousel(){
   featuredServices.forEach((s, i)=>{
     const card = document.createElement('div');
     card.className = 'future-card';
-  if(s.imageUrl){
+ if(s.imageUrl){
       card.style.backgroundImage = `url('${s.imageUrl}')`;
     }
-    card.innerHTML = `
-      <span class="click-hint">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
-      </span>
-    `;
     card.addEventListener('click', ()=> openFutureDetail(i));
     track.appendChild(card);
 
