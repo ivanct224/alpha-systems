@@ -251,6 +251,8 @@ footer{border-top:1px solid var(--line); padding:48px 24px 30px; margin-top:20px
 .foot-inner{max-width:1180px; margin:0 auto; display:flex; justify-content:space-between; flex-wrap:wrap; gap:24px;}
 .foot-inner h3{color:var(--navy);}
 .foot-inner p{color:var(--steel); font-size:13px;}
+.foot-meta{display:flex; flex-direction:column; gap:4px; margin-top:10px;}
+.foot-meta span{display:block; color:var(--steel); font-size:12px;}
 .foot-links{display:flex; gap:16px;}
 .foot-icon{
   display:flex; align-items:center; gap:8px; font-size:13px; color:var(--ink);
