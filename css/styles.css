@@ -179,20 +179,15 @@ nav.links a:hover{opacity:1; color:var(--navy);}
 .future-carousel::-webkit-scrollbar{display:none;}
 .future-card{
   flex:0 0 100%; scroll-snap-align:center; cursor:pointer;
-  position:relative; overflow:hidden; min-height:480px;
+  position:relative; overflow:hidden;
+  aspect-ratio:21/8;
   background-color:var(--navy-deep);
   background-size:cover; background-position:center;
   border-radius:16px;
-  transition:transform .15s;
+  transition:transform .2s;
 }
+.future-card:hover{transform:scale(1.008);}
 .future-card:active{transform:scale(0.99);}
-.future-card .click-hint{
-  position:absolute; right:22px; bottom:22px; width:46px; height:46px; border-radius:50%;
-  background:rgba(255,255,255,0.92); display:flex; align-items:center; justify-content:center;
-  box-shadow:0 8px 18px -8px rgba(0,0,0,0.45); transition:transform .2s, background .2s;
-}
-.future-card .click-hint svg{width:18px; height:18px; color:var(--navy-deep);}
-.future-card:hover .click-hint{transform:scale(1.1); background:#fff;}
 .future-arrow{
   position:relative; z-index:5; flex:0 0 auto; width:42px; height:42px; border-radius:50%;
   border:1px solid var(--line); background:var(--card); color:var(--navy);
@@ -226,7 +221,7 @@ nav.links a:hover{opacity:1; color:var(--navy);}
 .future-detail li::before{content:'—'; position:absolute; left:0; color:var(--steel);}
 
 @media (max-width:640px){
-  .future-card{min-height:320px;}
+  .future-card{aspect-ratio:4/3;}
   .future-arrow{width:34px; height:34px; font-size:18px;}
   .future-arrow.left{margin-right:-17px;}
   .future-arrow.right{margin-left:-17px;}
