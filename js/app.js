@@ -39,6 +39,7 @@ db.collection('content').doc('settings').onSnapshot((snap)=>{
     document.getElementById('footTagline').textContent = settings.tagline || 'IC // Systems & Technology';
     document.getElementById('waLink').href = settings.whatsapp ? `https://wa.me/${settings.whatsapp}` : '#';
     document.getElementById('igLink').href = settings.instagram || '#';
+    document.getElementById('ttLink').href = settings.tiktok || '#';
   }
 }, (err)=>console.error('settings', err));
 
