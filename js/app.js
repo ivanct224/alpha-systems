@@ -234,17 +234,13 @@ function renderFutureCarousel(){
   featuredServices.forEach((s, i)=>{
     const card = document.createElement('div');
     card.className = 'future-card';
-    if(s.imageUrl){
-      card.style.backgroundImage =
-        `linear-gradient(120deg, rgba(22,58,92,.90) 0%, rgba(31,78,121,.62) 50%, rgba(44,100,148,.30) 100%), url('${s.imageUrl}')`;
+  if(s.imageUrl){
+      card.style.backgroundImage = `url('${s.imageUrl}')`;
     }
     card.innerHTML = `
-      <span class="badge-bubble">${escapeHtml(s.badge||'')}</span>
-      <span class="tag">${escapeHtml(s.tag||'')}</span>
-      <h3>${escapeHtml(s.title||'')}</h3>
-      <p>${escapeHtml(s.desc||'')}</p>
-      ${s.price ? `<span class="price-tag">${escapeHtml(s.price)}</span>` : ''}
-      <span class="more">Ver detalle →</span>
+      <span class="click-hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+      </span>
     `;
     card.addEventListener('click', ()=> openFutureDetail(i));
     track.appendChild(card);
