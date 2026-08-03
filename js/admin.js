@@ -24,6 +24,7 @@ auth.onAuthStateChanged(async (user)=>{
       renderServicesAdmin();
       renderFeaturedAdmin();
       renderRequests();
+      renderReviewsAdmin();
     }else{
       toast('Esta cuenta no tiene permisos de administrador');
       await auth.signOut();
@@ -329,4 +330,33 @@ function renderRequests(){
         box.appendChild(item);
       });
     }, (err)=>console.error('requests', err));
+}
+
+/* ---------- RESEÑAS (moderación) ---------- */
+function renderReviewsAdmin(){
+  db.collection('reviews').orderBy('createdAt','desc').limit(100)
+    .onSnapshot((snap)=>{
+      const box = document.getElementById('reviewsAdminList');
+      if(!box) return;
+      box.innerHTML = '';
+      if(snap.empty){
+        box.innerHTML = '<p class="modal-note">No hay reseñas todavía.</p>';
+        return;
+      }
+      snap.forEach(doc=>{
+        const r = doc.data();
+        const item = document.createElement('div');
+        item.className = 'request-item';
+        item.innerHTML = `
+          <strong>${escapeHtml(r.name)}</strong> — ${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}
+          <p style="margin-top:6px;">${escapeHtml(r.comment)}</p>
+          <button class="btn ghost small" data-del style="margin-top:8px;">Borrar reseña</button>
+        `;
+        item.querySelector('[data-del]').addEventListener('click', async ()=>{
+          if(!confirm('¿Borrar esta reseña?')) return;
+          await db.collection('reviews').doc(doc.id).delete();
+        });
+        box.appendChild(item);
+      });
+    }, (err)=>console.error('reviews admin', err));
 }
