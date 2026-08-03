@@ -15,6 +15,12 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Destacados (carrusel de inicio): lectura pública, edición solo admin
+    match /featuredServices/{featuredId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // Estado del sistema y datos de contacto: lectura pública, edición solo admin
     match /content/{docId} {
       allow read: if true;
@@ -33,6 +39,23 @@ service cloud.firestore {
                       && request.resource.data.name.size() > 0
                       && request.resource.data.name.size() < 200;
       allow read, update, delete: if isAdmin();
+    }
+
+    // Reseñas: lectura pública, cualquiera puede publicar la suya,
+    // solo el admin puede borrar (moderación).
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['name','comment','rating','createdAt'])
+                      && request.resource.data.name is string
+                      && request.resource.data.name.size() > 0
+                      && request.resource.data.name.size() < 100
+                      && request.resource.data.comment is string
+                      && request.resource.data.comment.size() > 0
+                      && request.resource.data.comment.size() < 600
+                      && request.resource.data.rating is int
+                      && request.resource.data.rating >= 1
+                      && request.resource.data.rating <= 5;
+      allow update, delete: if isAdmin();
     }
 
     // Documento admins/{uid}: nadie puede escribirlo desde el cliente.
