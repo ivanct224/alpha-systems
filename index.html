@@ -25,6 +25,7 @@
     <nav class="links">
       <a href="#servicios">Servicios</a>
       <a href="#destacados">Destacados</a>
+      <a href="#resenas">Reseñas</a>
       <a href="#soporte">Soporte</a>
       <a href="#nosotros">Nosotros</a>
       <a href="#contacto">Contacto</a>
@@ -34,8 +35,24 @@
       <input type="text" id="catalogSearch" placeholder="Buscar servicio..." aria-label="Buscar en el catálogo de servicios">
     </div>
     <a href="#soporte" class="btn small">Solicitar servicio</a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </div>
 </header>
+
+<div class="mobile-nav-backdrop" id="mobileNavBackdrop"></div>
+<div class="mobile-nav" id="mobileNav">
+  <nav class="mobile-nav-links">
+    <a href="#servicios">Servicios</a>
+    <a href="#destacados">Destacados</a>
+    <a href="#resenas">Reseñas</a>
+    <a href="#soporte">Soporte</a>
+    <a href="#nosotros">Nosotros</a>
+    <a href="#contacto">Contacto</a>
+  </nav>
+  <a href="#soporte" class="btn">Solicitar servicio</a>
+</div>
 
 <section class="section future-section" id="destacados">
   <div class="section-head future-head">
@@ -82,6 +99,40 @@
   </div>
   <div class="grid" id="servicesGrid"></div>
   <p class="no-results" id="noServicesMatch" style="display:none;">No encontramos servicios que coincidan con tu búsqueda.</p>
+</section>
+
+<section class="section" id="resenas">
+  <div class="section-head">
+    <span class="eyebrow">·· CONFIANZA ··</span>
+    <h2>Lo que dicen nuestros clientes</h2>
+  </div>
+
+  <div class="reviews-summary" id="reviewsSummary"></div>
+  <div class="reviews-grid" id="reviewsGrid"></div>
+  <p class="no-results" id="noReviews" style="display:none;">Todavía no hay reseñas. ¡Sé el primero en dejar la tuya!</p>
+
+  <div class="form-box" style="margin-top:32px;">
+    <h4 style="margin-bottom:16px;">Dejá tu reseña</h4>
+    <div class="field">
+      <label>Tu nombre</label>
+      <input type="text" id="revName" placeholder="Tu nombre">
+    </div>
+    <div class="field">
+      <label>Puntuación</label>
+      <div class="star-picker" id="starPicker">
+        <button type="button" data-star="1">★</button>
+        <button type="button" data-star="2">★</button>
+        <button type="button" data-star="3">★</button>
+        <button type="button" data-star="4">★</button>
+        <button type="button" data-star="5">★</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Contanos tu experiencia</label>
+      <textarea id="revComment" placeholder="¿Qué te gustó? ¿Qué podríamos mejorar?"></textarea>
+    </div>
+    <button class="btn" id="submitReview">Enviar reseña</button>
+  </div>
 </section>
 
 <section class="section" id="soporte">
@@ -181,6 +232,10 @@
   </div>
 </div>
 
+<!-- SERVICIO Y SOPORTE-->
+
+  
+  
 <!-- MODAL: DETALLE DE SERVICIO FUTURO (destacados) -->
 <div class="overlay" id="futureOverlay">
   <div class="modal">
@@ -249,9 +304,14 @@
       <div class="field"><label>Frase corta del pie de página</label><input type="text" id="settingTag"></div>
       <button class="btn small" id="saveSettings">Guardar contacto</button>
 
-      <hr class="divider">
+     <hr class="divider">
       <h4 style="font-size:14px; color:var(--steel);">SOLICITUDES (MISSION // SUPPORT)</h4>
       <div id="requestsList"></div>
+
+      <hr class="divider">
+      <h4 style="font-size:14px; color:var(--steel);">RESEÑAS DE CLIENTES</h4>
+      <p class="modal-note" style="margin-top:0; margin-bottom:12px;">Se publican al instante para que generen confianza. Podés borrar las que sean spam o inapropiadas.</p>
+      <div id="reviewsAdminList"></div>
     </div>
   </div>
 </div>
