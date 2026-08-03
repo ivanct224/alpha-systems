@@ -181,7 +181,8 @@ nav.links a:hover{opacity:1; color:var(--navy);}
 .future-card{
   flex:0 0 100%; scroll-snap-align:center; cursor:pointer;
   position:relative; overflow:hidden;
-  aspect-ratio:21/8;
+  aspect-ratio:16/7;
+  max-height:520px;
   background-color:var(--navy-deep);
   background-size:cover; background-position:center;
   border-radius:16px;
@@ -222,7 +223,7 @@ nav.links a:hover{opacity:1; color:var(--navy);}
 .future-detail li::before{content:'—'; position:absolute; left:0; color:var(--steel);}
 
 @media (max-width:640px){
-  .future-card{aspect-ratio:4/3;}
+  .future-card{aspect-ratio:1/1; max-height:420px;}
   .future-arrow{width:34px; height:34px; font-size:18px;}
   .future-arrow.left{margin-right:-17px;}
   .future-arrow.right{margin-left:-17px;}
