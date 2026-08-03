@@ -166,7 +166,7 @@ nav.links a:hover{opacity:1; color:var(--navy);}
 }
 
 /* ---------- SERVICIOS DESTACADOS — BANNER CAROUSEL (estilo vidriera) ---------- */
-.future-section{background:var(--bg);}
+.future-section{background:var(--bg); padding-top:28px;}
 .future-head{max-width:1180px; margin:0 auto 36px; border-bottom:1px solid var(--line); padding-bottom:18px;}
 .future-wrap{
   position:relative; max-width:1180px; margin:0 auto;
