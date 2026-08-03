@@ -433,3 +433,113 @@ document.querySelectorAll('.overlay').forEach(ov=>{
     }
   });
 });
+
+/* ---------- MENÚ MÓVIL ---------- */
+const menuToggle = document.getElementById('menuToggle');
+const mobileNav = document.getElementById('mobileNav');
+const mobileNavBackdrop = document.getElementById('mobileNavBackdrop');
+
+function closeMobileNav(){
+  mobileNav?.classList.remove('show');
+  mobileNavBackdrop?.classList.remove('show');
+  menuToggle?.classList.remove('active');
+  menuToggle?.setAttribute('aria-expanded','false');
+}
+menuToggle?.addEventListener('click', ()=>{
+  const isOpen = mobileNav.classList.toggle('show');
+  mobileNavBackdrop.classList.toggle('show', isOpen);
+  menuToggle.classList.toggle('active', isOpen);
+  menuToggle.setAttribute('aria-expanded', String(isOpen));
+});
+mobileNavBackdrop?.addEventListener('click', closeMobileNav);
+mobileNav?.querySelectorAll('a').forEach(a=> a.addEventListener('click', closeMobileNav));
+
+/* ---------- RESEÑAS (reviews/) ---------- */
+let reviews = [];
+let selectedStars = 0;
+
+db.collection('reviews').orderBy('createdAt','desc').onSnapshot((snap)=>{
+  reviews = [];
+  snap.forEach(doc=> reviews.push({ id: doc.id, ...doc.data() }));
+  renderReviews();
+}, (err)=>console.error('reviews', err));
+
+function starsHtml(n){
+  let s = '';
+  for(let i=1;i<=5;i++){ s += i<=n ? '★' : '☆'; }
+  return s;
+}
+
+function renderReviews(){
+  const grid = document.getElementById('reviewsGrid');
+  const summary = document.getElementById('reviewsSummary');
+  const empty = document.getElementById('noReviews');
+  if(!grid) return;
+  grid.innerHTML = '';
+
+  if(reviews.length === 0){
+    empty.style.display = 'block';
+    summary.innerHTML = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const avg = reviews.reduce((sum,r)=> sum + (r.rating||0), 0) / reviews.length;
+  summary.innerHTML = `
+    <span class="avg-score">${avg.toFixed(1)}</span>
+    <div>
+      <div class="avg-stars">${starsHtml(Math.round(avg))}</div>
+      <div class="avg-count">${reviews.length} reseña${reviews.length===1?'':'s'}</div>
+    </div>
+  `;
+
+  reviews.forEach(r=>{
+    const card = document.createElement('div');
+    card.className = 'review-card';
+    card.innerHTML = `
+      <div class="stars">${starsHtml(r.rating||0)}</div>
+      <div class="review-name">${escapeHtml(r.name||'Anónimo')}</div>
+      <p class="review-comment">${escapeHtml(r.comment||'')}</p>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+const starPicker = document.getElementById('starPicker');
+starPicker?.querySelectorAll('button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    selectedStars = parseInt(btn.getAttribute('data-star'),10);
+    starPicker.querySelectorAll('button').forEach(b=>{
+      b.classList.toggle('active', parseInt(b.getAttribute('data-star'),10) <= selectedStars);
+    });
+  });
+});
+
+document.getElementById('submitReview')?.addEventListener('click', async ()=>{
+  const name = document.getElementById('revName').value.trim();
+  const comment = document.getElementById('revComment').value.trim();
+
+  if(!name || !comment){
+    toast('Completá tu nombre y contanos tu experiencia');
+    return;
+  }
+  if(!selectedStars){
+    toast('Elegí una puntuación en estrellas');
+    return;
+  }
+
+  try{
+    await db.collection('reviews').add({
+      name, comment, rating: selectedStars,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById('revName').value = '';
+    document.getElementById('revComment').value = '';
+    selectedStars = 0;
+    starPicker?.querySelectorAll('button').forEach(b=> b.classList.remove('active'));
+    toast('¡Gracias por tu reseña!');
+  }catch(err){
+    console.error(err);
+    toast('No se pudo enviar la reseña. Intentá de nuevo.');
+  }
+});
