@@ -181,7 +181,7 @@ nav.links a:hover{opacity:1; color:var(--navy);}
 .future-card{
   flex:0 0 100%; scroll-snap-align:center; cursor:pointer;
   position:relative; overflow:hidden;
-  aspect-ratio:16/7;
+  aspect-ratio:16/5;
   max-height:520px;
   background-color:var(--navy-deep);
   background-size:cover; background-position:center;
