@@ -93,10 +93,16 @@ nav.links a:hover{opacity:1; color:var(--navy);}
 .status-value{font-family:'Consolas',monospace; font-size:12px; color:var(--steel);}
 
 /* ---------- SECTIONS ---------- */
-.section{padding:64px 24px;}
 .section-head{max-width:1180px; margin:0 auto 36px; border-bottom:1px solid var(--line); padding-bottom:18px;}
 .section-head .eyebrow{font-family:'Consolas',monospace; font-size:11px; color:var(--navy); letter-spacing:0.15em;}
-.section-head h2{font-size:28px; margin-top:6px;}
+.section-head h2{
+  display:inline-flex; align-items:center; gap:12px;
+  font-size:clamp(26px,3.4vw,36px); font-weight:800; letter-spacing:-0.01em;
+  color:var(--ink); margin-top:8px;
+}
+.section-head h2::before{
+  content:''; width:4px; height:24px; background:var(--navy); border-radius:2px; flex-shrink:0;
+}
 
 /* ---------- SERVICES (áreas de trabajo) ----------
    Cada tarjeta es un "módulo": foto arriba con su propio
@@ -162,11 +168,6 @@ nav.links a:hover{opacity:1; color:var(--navy);}
 /* ---------- SERVICIOS DESTACADOS — BANNER CAROUSEL (estilo vidriera) ---------- */
 .future-section{background:var(--bg);}
 .future-head{max-width:1180px; margin:0 auto 36px; border-bottom:1px solid var(--line); padding-bottom:18px;}
-.future-head h2{
-  font-size:clamp(30px,4.2vw,44px); font-weight:800; letter-spacing:-0.01em; margin:0;
-  background:linear-gradient(120deg, var(--navy-deep), var(--navy) 55%, #2C6494);
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-}
 .future-wrap{
   position:relative; max-width:1180px; margin:0 auto;
   display:flex; align-items:center; gap:0;
