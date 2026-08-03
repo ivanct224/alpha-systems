@@ -348,3 +348,4 @@ footer{border-top:1px solid var(--line); padding:48px 24px 30px; margin-top:20px
   border:1px solid var(--line); background:var(--card); border-radius:10px; padding:9px 14px;
 }
 .payment-badge svg{width:18px; height:18px; stroke:var(--navy); flex-shrink:0;}
+.payment-logo{height:26px; width:auto; display:block;}
