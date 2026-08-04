@@ -148,6 +148,16 @@ nav.links a:hover{opacity:1; color:var(--navy);}
 .card-media .wa-btn:focus-visible{outline:2px solid #fff; outline-offset:2px;}
 .card-media .wa-btn svg{width:12px; height:12px; stroke:#fff; flex-shrink:0;}
 .card-body{padding:14px 16px 16px; display:flex; flex-direction:column; gap:5px; flex:1;}
+.card-body .card-category{
+  font-family:'Consolas',monospace; font-size:10px; color:var(--navy);
+  letter-spacing:0.08em; text-transform:uppercase; opacity:0.85;
+}
+.card-title-row{display:flex; align-items:flex-start; justify-content:space-between; gap:8px;}
+.card-title-row h3{flex:1;}
+.price-tag{
+  font-family:'Consolas',monospace; font-size:12.5px; font-weight:700; color:var(--navy);
+  white-space:nowrap; flex-shrink:0; padding-top:1px;
+}
 .card-body h3{font-size:15px; line-height:1.3;}
 .card-body .summary{
   font-size:12px; color:var(--steel); line-height:1.5;
@@ -158,6 +168,18 @@ nav.links a:hover{opacity:1; color:var(--navy);}
   font-family:'Consolas',monospace; font-size:10.5px; color:var(--navy);
   letter-spacing:0.06em; display:inline-flex; align-items:center; gap:5px;
 }
+
+/* ---------- Filtro de categorías del catálogo ---------- */
+.category-filters{
+  max-width:1180px; margin:0 auto 22px; display:flex; flex-wrap:wrap; gap:8px;
+}
+.category-chip{
+  font-family:'Consolas',monospace; font-size:11px; letter-spacing:0.05em;
+  padding:7px 14px; border-radius:99px; border:1px solid var(--line);
+  background:var(--card); color:var(--steel); cursor:pointer; transition:all .2s;
+}
+.category-chip:hover{border-color:var(--navy); color:var(--navy);}
+.category-chip.active{background:var(--navy); border-color:var(--navy); color:#fff;}
 
 @media (max-width:480px){
   .grid{grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:14px;}
