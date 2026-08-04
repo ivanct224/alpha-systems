@@ -26,7 +26,6 @@
       <a href="#servicios">Servicios</a>
       <a href="#destacados">Destacados</a>
       <a href="#resenas">Reseñas</a>
-      <a href="#soporte">Soporte</a>
       <a href="#nosotros">Nosotros</a>
       <a href="#contacto">Contacto</a>
     </nav>
@@ -34,7 +33,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
       <input type="text" id="catalogSearch" placeholder="Buscar servicio..." aria-label="Buscar en el catálogo de servicios">
     </div>
-    <a href="#soporte" class="btn small">Solicitar servicio</a>
+    <a href="#servicios" class="btn small">Solicitar servicio</a>
     <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
@@ -47,11 +46,10 @@
     <a href="#servicios">Servicios</a>
     <a href="#destacados">Destacados</a>
     <a href="#resenas">Reseñas</a>
-    <a href="#soporte">Soporte</a>
     <a href="#nosotros">Nosotros</a>
     <a href="#contacto">Contacto</a>
   </nav>
-  <a href="#soporte" class="btn">Solicitar servicio</a>
+  <a href="#servicios" class="btn">Solicitar servicio</a>
 </div>
 <!-- carrusel// banner -->
 <section class="section future-section" id="destacados">
@@ -68,24 +66,8 @@
   <h1>Sistemas que <br>funcionan. Siempre.</h1>
   <p class="lead">Soporte informático · Sistemas · Redes · Mantención · Optimización.</p>
   <div class="cta-row">
-    <a href="#soporte" class="btn">Solicitar servicio</a>
+    <a href="#servicios" class="btn">Solicitar servicio</a>
     <a href="#servicios" class="btn ghost">Ver servicios</a>
-  </div>
-
-  <div class="status-panel">
-    <div class="id">ALPHA SYSTEMS // 01 — SYSTEM STATUS</div>
-    <div class="status-row">
-      <span class="label"><span class="dot" id="dotSystems"></span>SYSTEMS</span>
-      <span class="status-value" id="valSystems">—</span>
-    </div>
-    <div class="status-row">
-      <span class="label"><span class="dot" id="dotNetwork"></span>NETWORK</span>
-      <span class="status-value" id="valNetwork">—</span>
-    </div>
-    <div class="status-row">
-      <span class="label"><span class="dot" id="dotSupport"></span>SUPPORT</span>
-      <span class="status-value" id="valSupport">—</span>
-    </div>
   </div>
 </section>
 
@@ -129,38 +111,6 @@
       <textarea id="revComment" placeholder="¿Qué te gustó? ¿Qué podríamos mejorar?"></textarea>
     </div>
     <button class="btn" id="submitReview">Enviar reseña</button>
-  </div>
-</section>
-
-<section class="section" id="soporte">
-  <div class="section-head">
-    <span class="eyebrow">02 // MISSION // SUPPORT</span>
-    <h2>Iniciar una solicitud</h2>
-  </div>
-  <div class="form-box">
-    <div class="field">
-      <label>Nombre</label>
-      <input type="text" id="reqName" placeholder="Tu nombre">
-    </div>
-    <div class="field">
-      <label>Contacto (WhatsApp o email)</label>
-      <input type="text" id="reqContact" placeholder="+56 9 ...">
-    </div>
-    <div class="field">
-      <label>Tipo de servicio</label>
-      <select id="reqType">
-        <option value="soporte">Soporte informático</option>
-        <option value="optimizacion">Optimización</option>
-        <option value="seguridad">Seguridad &amp; soporte</option>
-        <option value="otro">Otro</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Descripción del problema</label>
-      <textarea id="reqDesc" placeholder="Contanos qué necesitás"></textarea>
-    </div>
-    <button class="btn" id="submitRequest">Iniciar solicitud</button>
-    <p class="modal-note">Tu solicitud queda registrada y también se abre WhatsApp para coordinar directamente con ALPHA SYSTEMS.</p>
   </div>
 </section>
 
@@ -266,30 +216,14 @@
         <button class="btn ghost small" id="adminLogoutBtn">Salir</button>
       </div>
 
-      <h4 style="margin-top:20px; font-size:14px; color:var(--steel);">ESTADO DEL SISTEMA</h4>
-      <div class="field">
-        <label>Systems</label>
-        <select id="editSystems"><option value="ONLINE">ONLINE</option><option value="LIMITED">LIMITED</option><option value="OFFLINE">OFFLINE</option></select>
-      </div>
-      <div class="field">
-        <label>Network</label>
-        <select id="editNetwork"><option value="ONLINE">ONLINE</option><option value="LIMITED">LIMITED</option><option value="OFFLINE">OFFLINE</option></select>
-      </div>
-      <div class="field">
-        <label>Support</label>
-        <select id="editSupport"><option value="READY">READY</option><option value="LIMITED">LIMITED</option><option value="OFFLINE">OFFLINE</option></select>
-      </div>
-      <button class="btn small" id="saveStatus">Guardar estado</button>
-
-      <hr class="divider">
-      <h4 style="font-size:14px; color:var(--steel);">SERVICIOS</h4>
+      <h4 style="margin-top:20px; font-size:14px; color:var(--steel);">SERVICIOS</h4>
       <p class="modal-note" style="margin-top:0; margin-bottom:12px;">Cada servicio puede llevar una foto, una descripción corta (la que se ve en la tarjeta) y un detalle en viñetas (el que se ve al hacer clic).</p>
       <div class="admin-list" id="servicesAdminList"></div>
       <button class="btn ghost small" id="addService" style="margin-top:12px;">+ Agregar servicio</button>
 
       <hr class="divider">
       <h4 style="font-size:14px; color:var(--steel);">DESTACADOS (carrusel de inicio)</h4>
-      <p class="modal-note" style="margin-top:0; margin-bottom:12px;">Estas son las cards grandes tipo publicidad que aparecen arriba, antes del formulario de soporte.</p>
+      <p class="modal-note" style="margin-top:0; margin-bottom:12px;">Estas son las cards grandes tipo publicidad que aparecen arriba, antes del catálogo de servicios.</p>
       <div class="admin-list" id="featuredAdminList"></div>
       <button class="btn ghost small" id="addFeatured" style="margin-top:12px;">+ Agregar destacado</button>
 
