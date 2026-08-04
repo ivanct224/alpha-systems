@@ -66,6 +66,7 @@
     <span class="eyebrow">01 // SERVICIOS</span>
     <h2>Áreas de trabajo</h2>
   </div>
+  <div class="category-filters" id="categoryFilters"></div>
   <div class="grid" id="servicesGrid"></div>
   <p class="no-results" id="noServicesMatch" style="display:none;">No encontramos servicios que coincidan con tu búsqueda.</p>
 </section>
@@ -209,6 +210,13 @@
       <h4 style="margin-top:20px; font-size:14px; color:var(--steel);">SERVICIOS</h4>
       <p class="modal-note" style="margin-top:0; margin-bottom:12px;">Cada servicio puede llevar una foto, una descripción corta (la que se ve en la tarjeta) y un detalle en viñetas (el que se ve al hacer clic).</p>
       <div class="admin-list" id="servicesAdminList"></div>
+      <datalist id="categoryOptions">
+        <option value="Limpieza">
+        <option value="Instalación de aplicaciones">
+        <option value="Desarrollo de apps y sitios web">
+        <option value="Mantención de equipos">
+        <option value="Redes y seguridad">
+      </datalist>
       <button class="btn ghost small" id="addService" style="margin-top:12px;">+ Agregar servicio</button>
 
       <hr class="divider">
