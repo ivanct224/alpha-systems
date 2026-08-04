@@ -34,24 +34,6 @@ auth.onAuthStateChanged(async (user)=>{
   }
 });
 
-/* ---------- ESTADO ---------- */
-db.collection('content').doc('status').onSnapshot((snap)=>{
-  if(!snap.exists) return;
-  const d = snap.data();
-  document.getElementById('editSystems').value = d.systems || 'ONLINE';
-  document.getElementById('editNetwork').value = d.network || 'ONLINE';
-  document.getElementById('editSupport').value = d.support || 'READY';
-});
-
-document.getElementById('saveStatus').addEventListener('click', async ()=>{
-  await db.collection('content').doc('status').set({
-    systems: document.getElementById('editSystems').value,
-    network: document.getElementById('editNetwork').value,
-    support: document.getElementById('editSupport').value
-  });
-  toast('Estado actualizado');
-});
-
 /* ---------- SETTINGS ---------- */
 function loadSettingsIntoForm(){
   document.getElementById('settingWa').value = settings.whatsapp || '';
@@ -96,15 +78,6 @@ function renderServicesAdmin(){
       <div class="field">
         <label>Descripción corta (se ve en la tarjeta)</label>
         <textarea data-field="desc" placeholder="Ej: Diagnóstico, limpieza y revisión de rendimiento de tu equipo.">${s.desc||''}</textarea>
-      </div>
-      <div class="field">
-        <label>Tipo de solicitud (al tocar "Solicitar por formulario")</label>
-        <select data-field="reqType">
-          <option value="soporte" ${s.reqType==='soporte'?'selected':''}>Soporte informático</option>
-          <option value="optimizacion" ${s.reqType==='optimizacion'?'selected':''}>Optimización</option>
-          <option value="seguridad" ${s.reqType==='seguridad'?'selected':''}>Seguridad &amp; soporte</option>
-          <option value="otro" ${s.reqType==='otro'?'selected':''}>Otro</option>
-        </select>
       </div>
       <div class="field">
         <label>Detalle (un ítem por línea, se muestra al hacer clic en la tarjeta)</label>
@@ -170,7 +143,6 @@ document.getElementById('addService').addEventListener('click', async ()=>{
     title: 'Nuevo servicio',
     desc: 'Descripción breve del servicio.',
     imageUrl: '',
-    reqType: 'soporte',
     items: ['Ítem de ejemplo'],
     order: services.length
   });
@@ -214,15 +186,6 @@ function renderFeaturedAdmin(){
       <div class="field">
         <label>Descripción corta</label>
         <textarea data-field="desc" placeholder="Descripción breve del servicio">${s.desc||''}</textarea>
-      </div>
-      <div class="field">
-        <label>Tipo de solicitud (al tocar "Solicitar este servicio")</label>
-        <select data-field="reqType">
-          <option value="soporte" ${s.reqType==='soporte'?'selected':''}>Soporte informático</option>
-          <option value="optimizacion" ${s.reqType==='optimizacion'?'selected':''}>Optimización</option>
-          <option value="seguridad" ${s.reqType==='seguridad'?'selected':''}>Seguridad &amp; soporte</option>
-          <option value="otro" ${s.reqType==='otro'?'selected':''}>Otro</option>
-        </select>
       </div>
       <div class="field">
         <label>Detalle (un ítem por línea, se muestra al hacer clic)</label>
@@ -291,7 +254,6 @@ document.getElementById('addFeatured').addEventListener('click', async ()=>{
     badge: 'TOP',
     price: '',
     desc: 'Descripción breve del servicio.',
-    reqType: 'soporte',
     items: ['Detalle 1'],
     order: featuredServices.length
   });
