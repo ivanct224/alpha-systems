@@ -30,6 +30,8 @@ db.collection('content').doc('settings').onSnapshot((snap)=>{
 db.collection('services').orderBy('order').onSnapshot((snap)=>{
   services = [];
   snap.forEach(doc=> services.push({ id: doc.id, ...doc.data() }));
+  // Agrupamos visualmente por categoría, respetando el orden dentro de cada una.
+  services.sort((a,b)=> (a.category||'').toLowerCase().localeCompare((b.category||'').toLowerCase()));
   renderServices();
 }, (err)=>console.error('services', err));
 
@@ -61,7 +63,11 @@ function renderServices(){
         </button>
       </div>
       <div class="card-body">
-        <h3>${escapeHtml(s.title||'')}</h3>
+        ${s.category ? `<span class="card-category">${escapeHtml(s.category)}</span>` : ''}
+        <div class="card-title-row">
+          <h3>${escapeHtml(s.title||'')}</h3>
+          ${s.price ? `<span class="price-tag">${escapeHtml(s.price)}</span>` : ''}
+        </div>
         <p class="summary">${escapeHtml(summary)}</p>
         <span class="view-detail">Ver detalle →</span>
       </div>
@@ -82,7 +88,37 @@ function renderServices(){
     grid.appendChild(card);
   });
 
+  renderCategoryFilters();
   applyCatalogSearch(document.getElementById('catalogSearch')?.value || '');
+}
+
+/* ---------- FILTRO POR CATEGORÍA ---------- */
+let currentCategory = 'todos';
+
+function renderCategoryFilters(){
+  const box = document.getElementById('categoryFilters');
+  if(!box) return;
+  const cats = [...new Set(services.map(s=> (s.category||'').trim()).filter(Boolean))];
+
+  if(cats.length === 0){
+    box.innerHTML = '';
+    box.style.display = 'none';
+    return;
+  }
+  box.style.display = 'flex';
+
+  box.innerHTML = `
+    <button type="button" class="category-chip ${currentCategory==='todos' ? 'active' : ''}" data-cat="todos">Todos</button>
+    ${cats.map(c=> `<button type="button" class="category-chip ${currentCategory===c ? 'active' : ''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`).join('')}
+  `;
+
+  box.querySelectorAll('[data-cat]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      currentCategory = btn.getAttribute('data-cat');
+      renderCategoryFilters();
+      applyCatalogSearch(document.getElementById('catalogSearch')?.value || '');
+    });
+  });
 }
 
 /* ---------- BUSCADOR DEL CATÁLOGO (header) ----------
@@ -99,13 +135,15 @@ function applyCatalogSearch(rawQuery){
   grid.querySelectorAll('.card').forEach(card=>{
     const s = services[Number(card.dataset.serviceIndex)];
     if(!s){ card.style.display = ''; return; }
-    const haystack = [s.title, s.desc, ...(s.items||[])].filter(Boolean).join(' ').toLowerCase();
-    const match = !q || haystack.includes(q);
+    const matchesCategory = currentCategory === 'todos' || (s.category||'').trim() === currentCategory;
+    const haystack = [s.title, s.desc, s.category, ...(s.items||[])].filter(Boolean).join(' ').toLowerCase();
+    const matchesQuery = !q || haystack.includes(q);
+    const match = matchesCategory && matchesQuery;
     card.style.display = match ? '' : 'none';
     if(match) anyVisible = true;
   });
 
-  if(noResults) noResults.style.display = (q && !anyVisible) ? 'block' : 'none';
+  if(noResults) noResults.style.display = anyVisible ? 'none' : 'block';
 }
 
 const catalogSearchInput = document.getElementById('catalogSearch');
@@ -154,6 +192,7 @@ function openServiceDetail(i){
       ${s.imageUrl ? `<img src="${s.imageUrl}" alt="${escapeHtml(s.title||'')}" style="width:100%; height:190px; object-fit:cover; border-radius:10px; margin-bottom:16px;">` : ''}
       <span class="tag">MOD-0${i+1}</span>
       <h3>${escapeHtml(s.title||'')}</h3>
+      ${s.price ? `<div class="detail-price">${escapeHtml(s.price)}</div>` : ''}
       ${s.desc ? `<p class="desc">${escapeHtml(s.desc)}</p>` : ''}
       <ul>${(s.items||[]).map(it=>`<li>${escapeHtml(it)}</li>`).join('')}</ul>
     </div>
