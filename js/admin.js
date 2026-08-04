@@ -76,6 +76,14 @@ function renderServicesAdmin(){
         </div>
       </div>
       <div class="field">
+        <label>Categoría (ej: Limpieza, Instalación de aplicaciones, Desarrollo de apps y sitios web)</label>
+        <input type="text" value="${s.category||''}" data-field="category" list="categoryOptions" placeholder="Ej: Limpieza">
+      </div>
+      <div class="field">
+        <label>Valor (opcional, ej: "Desde $19.990")</label>
+        <input type="text" value="${s.price||''}" data-field="price" placeholder="Desde $19.990">
+      </div>
+      <div class="field">
         <label>Descripción corta (se ve en la tarjeta)</label>
         <textarea data-field="desc" placeholder="Ej: Diagnóstico, limpieza y revisión de rendimiento de tu equipo.">${s.desc||''}</textarea>
       </div>
@@ -142,6 +150,8 @@ document.getElementById('addService').addEventListener('click', async ()=>{
   await db.collection('services').add({
     title: 'Nuevo servicio',
     desc: 'Descripción breve del servicio.',
+    category: '',
+    price: '',
     imageUrl: '',
     items: ['Ítem de ejemplo'],
     order: services.length
