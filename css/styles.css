@@ -426,3 +426,61 @@ footer{border-top:1px solid var(--line); padding:48px 24px 30px; margin-top:20px
   color:var(--line); transition:color .15s, transform .15s; padding:0;
 }
 .star-picker button.active{color:#F5A623; transform:scale(1.08);}
+
+/* ---------- MINI RATING EN LA TARJETA DEL CATÁLOGO ---------- */
+.card-rating{display:flex; align-items:center; gap:6px; margin:2px 0 2px;}
+.stars-mini{color:#F5A623; font-size:13px; letter-spacing:1px;}
+.rating-count{font-size:11.5px; color:var(--steel);}
+
+/* ---------- PÁGINA DE PRODUCTO (detalle de servicio, estilo retail) ---------- */
+.pd-layout{
+  display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.15fr); gap:28px; margin-bottom:28px;
+}
+.pd-layout.no-gallery{grid-template-columns:1fr;}
+.pd-gallery{display:flex; flex-direction:column; gap:10px;}
+.pd-main-image{
+  width:100%; aspect-ratio:4/3; border-radius:12px; background-size:cover; background-position:center;
+  background-color:var(--bg); border:1px solid var(--line);
+}
+.pd-thumbs{display:flex; gap:8px; flex-wrap:wrap;}
+.pd-thumb{
+  width:56px; height:56px; border-radius:8px; background-size:cover; background-position:center;
+  border:2px solid var(--line); cursor:pointer; padding:0; opacity:0.75; transition:opacity .15s, border-color .15s;
+}
+.pd-thumb:hover{opacity:1;}
+.pd-thumb.active{border-color:var(--navy); opacity:1;}
+.pd-info{display:flex; flex-direction:column;}
+.pd-info h3{font-size:24px; margin:6px 0 8px;}
+.pd-rating-line{display:flex; align-items:center; gap:8px; margin-bottom:10px;}
+.pd-rating-line .stars-mini{font-size:15px;}
+.pd-rating-line .rating-count{font-size:13px;}
+.pd-subhead{
+  font-family:'Consolas',monospace; font-size:11.5px; letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--steel); margin:18px 0 10px;
+}
+.pd-features{list-style:none;}
+.pd-features li{
+  display:flex; align-items:flex-start; gap:10px; font-size:13.5px; padding:8px 0;
+  border-top:1px solid var(--line); color:var(--ink);
+}
+.pd-features li:first-child{border-top:none;}
+.pd-features li .check{color:var(--ok); font-weight:700; flex-shrink:0;}
+.pd-reviews{border-top:1px solid var(--line); padding-top:24px;}
+.pd-reviews-grid{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:14px; margin-bottom:22px;
+}
+.review-card.compact{padding:16px;}
+.pd-review-form{max-width:440px;}
+
+@media (max-width:720px){
+  .pd-layout{grid-template-columns:1fr;}
+}
+
+/* ---------- GALERÍA DE FOTOS EN EL PANEL ADMIN ---------- */
+.gallery-thumbs{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;}
+.gallery-thumb{position:relative; width:64px; height:64px; border-radius:8px; overflow:hidden; border:1px solid var(--line);}
+.gallery-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+.gallery-thumb-del{
+  position:absolute; top:2px; right:2px; width:18px; height:18px; border-radius:50%;
+  background:rgba(28,37,48,0.75); color:#fff; border:none; font-size:12px; line-height:1; cursor:pointer;
+}
