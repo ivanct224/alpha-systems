@@ -68,6 +68,7 @@ function renderServices(){
           <h3>${escapeHtml(s.title||'')}</h3>
           ${s.price ? `<span class="price-tag">${escapeHtml(s.price)}</span>` : ''}
         </div>
+        ${serviceRatingHtml(s.id)}
         <p class="summary">${escapeHtml(summary)}</p>
         <span class="view-detail">Ver detalle →</span>
       </div>
@@ -174,6 +175,18 @@ catalogSearchInput?.addEventListener('blur', ()=>{
   }
 });
 
+/* Promedio de estrellas de un servicio puntual, usado tanto en la
+   tarjeta del catálogo como en su página de producto. */
+function serviceReviewsFor(serviceId){
+  return (typeof reviews !== 'undefined' ? reviews : []).filter(r=> r.serviceId === serviceId);
+}
+function serviceRatingHtml(serviceId){
+  const list = serviceReviewsFor(serviceId);
+  if(!list.length) return '';
+  const avg = list.reduce((sum,r)=> sum + (r.rating||0), 0) / list.length;
+  return `<div class="card-rating"><span class="stars-mini">${starsHtml(Math.round(avg))}</span><span class="rating-count">${avg.toFixed(1)} (${list.length})</span></div>`;
+}
+
 function reserveServiceOnWhatsapp(s){
   if(!settings.whatsapp){
     toast('Todavía no hay un WhatsApp configurado en el panel');
@@ -187,23 +200,124 @@ function openServiceDetail(i){
   const s = services[i];
   if(!s) return;
   const box = document.getElementById('serviceDetailContent');
+  const images = [s.imageUrl, ...(s.images||[])].filter(Boolean);
+
+  const gallery = images.length ? `
+    <div class="pd-gallery">
+      <div class="pd-main-image" id="pdMainImage" style="background-image:url('${images[0]}')"></div>
+      ${images.length > 1 ? `
+        <div class="pd-thumbs" id="pdThumbs">
+          ${images.map((url, idx)=> `<button type="button" class="pd-thumb ${idx===0?'active':''}" data-thumb="${idx}" style="background-image:url('${url}')" aria-label="Ver foto ${idx+1}"></button>`).join('')}
+        </div>` : ''}
+    </div>` : '';
+
+  const serviceReviewsList = serviceReviewsFor(s.id);
+  const avg = serviceReviewsList.length
+    ? serviceReviewsList.reduce((sum,r)=> sum + (r.rating||0), 0) / serviceReviewsList.length
+    : 0;
+
   box.innerHTML = `
-    <div class="future-detail">
-      ${s.imageUrl ? `<img src="${s.imageUrl}" alt="${escapeHtml(s.title||'')}" style="width:100%; height:190px; object-fit:cover; border-radius:10px; margin-bottom:16px;">` : ''}
-      <span class="tag">MOD-0${i+1}</span>
-      <h3>${escapeHtml(s.title||'')}</h3>
-      ${s.price ? `<div class="detail-price">${escapeHtml(s.price)}</div>` : ''}
-      ${s.desc ? `<p class="desc">${escapeHtml(s.desc)}</p>` : ''}
-      <ul>${(s.items||[]).map(it=>`<li>${escapeHtml(it)}</li>`).join('')}</ul>
+    <div class="pd-layout ${gallery ? '' : 'no-gallery'}">
+      ${gallery}
+      <div class="pd-info">
+        <span class="tag">MOD-0${i+1}${s.category ? ' · ' + escapeHtml(s.category) : ''}</span>
+        <h3>${escapeHtml(s.title||'')}</h3>
+        ${serviceReviewsList.length ? `
+          <div class="pd-rating-line">
+            <span class="stars-mini">${starsHtml(Math.round(avg))}</span>
+            <span class="rating-count">${avg.toFixed(1)} · ${serviceReviewsList.length} reseña${serviceReviewsList.length===1?'':'s'}</span>
+          </div>` : ''}
+        ${s.price ? `<div class="detail-price">${escapeHtml(s.price)}</div>` : ''}
+        ${s.desc ? `<p class="desc">${escapeHtml(s.desc)}</p>` : ''}
+        ${(s.items||[]).length ? `
+          <h5 class="pd-subhead">Características</h5>
+          <ul class="pd-features">${(s.items||[]).map(it=> `<li><span class="check">✓</span>${escapeHtml(it)}</li>`).join('')}</ul>` : ''}
+        <button class="btn" id="reserveServiceWa" style="width:100%; justify-content:center; margin-top:6px;">Reservar por WhatsApp</button>
+      </div>
     </div>
-    <div style="display:flex; flex-direction:column; gap:10px;">
-      <button class="btn small" id="reserveServiceWa" style="width:100%; justify-content:center;">Reservar por WhatsApp</button>
+
+    <div class="pd-reviews">
+      <h5 class="pd-subhead">Reseñas de clientes que contrataron este servicio</h5>
+      ${serviceReviewsList.length ? `
+        <div class="pd-reviews-grid">
+          ${serviceReviewsList.map(r=> `
+            <div class="review-card compact">
+              <div class="stars">${starsHtml(r.rating||0)}</div>
+              <div class="review-name">${escapeHtml(r.name||'Anónimo')}</div>
+              <p class="review-comment">${escapeHtml(r.comment||'')}</p>
+            </div>
+          `).join('')}
+        </div>` : `<p class="modal-note" style="margin-top:0;">Todavía no hay reseñas para este servicio. ¡Sé el primero en dejar la tuya!</p>`}
+
+      <div class="pd-review-form">
+        <div class="field">
+          <label>Tu nombre</label>
+          <input type="text" id="pdRevName" placeholder="Tu nombre">
+        </div>
+        <div class="field">
+          <label>Puntuación</label>
+          <div class="star-picker" id="pdStarPicker">
+            <button type="button" data-star="1">★</button>
+            <button type="button" data-star="2">★</button>
+            <button type="button" data-star="3">★</button>
+            <button type="button" data-star="4">★</button>
+            <button type="button" data-star="5">★</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Contanos tu experiencia con este servicio</label>
+          <textarea id="pdRevComment" placeholder="¿Qué te gustó? ¿Qué podríamos mejorar?"></textarea>
+        </div>
+        <button class="btn small" id="pdSubmitReview">Enviar reseña</button>
+      </div>
     </div>
   `;
+
+  box.querySelectorAll('[data-thumb]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = parseInt(btn.getAttribute('data-thumb'),10);
+      const mainImg = document.getElementById('pdMainImage');
+      if(mainImg && images[idx]) mainImg.style.backgroundImage = `url('${images[idx]}')`;
+      box.querySelectorAll('[data-thumb]').forEach(b=> b.classList.toggle('active', b===btn));
+    });
+  });
+
   document.getElementById('reserveServiceWa').addEventListener('click', ()=>{
     reserveServiceOnWhatsapp(s);
     document.getElementById('serviceOverlay').classList.remove('show');
   });
+
+  let pdSelectedStars = 0;
+  const pdStarPicker = document.getElementById('pdStarPicker');
+  pdStarPicker.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      pdSelectedStars = parseInt(btn.getAttribute('data-star'),10);
+      pdStarPicker.querySelectorAll('button').forEach(b=>{
+        b.classList.toggle('active', parseInt(b.getAttribute('data-star'),10) <= pdSelectedStars);
+      });
+    });
+  });
+
+  document.getElementById('pdSubmitReview').addEventListener('click', async ()=>{
+    const name = document.getElementById('pdRevName').value.trim();
+    const comment = document.getElementById('pdRevComment').value.trim();
+    if(!name || !comment){ toast('Completá tu nombre y contanos tu experiencia'); return; }
+    if(!pdSelectedStars){ toast('Elegí una puntuación en estrellas'); return; }
+    try{
+      await db.collection('reviews').add({
+        name, comment, rating: pdSelectedStars,
+        serviceId: s.id,
+        serviceTitle: s.title || '',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      toast('¡Gracias por tu reseña!');
+      openServiceDetail(i);
+    }catch(err){
+      console.error(err);
+      toast('No se pudo enviar la reseña. Intentá de nuevo.');
+    }
+  });
+
   document.getElementById('serviceOverlay').classList.add('show');
   attachCloseHandlers();
 }
@@ -428,6 +542,7 @@ db.collection('reviews').orderBy('createdAt','desc').onSnapshot((snap)=>{
   reviews = [];
   snap.forEach(doc=> reviews.push({ id: doc.id, ...doc.data() }));
   renderReviews();
+  if(services.length) renderServices();
 }, (err)=>console.error('reviews', err));
 
 function starsHtml(n){
