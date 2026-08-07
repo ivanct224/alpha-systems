@@ -39,8 +39,8 @@ function renderServices(){
   const grid = document.getElementById('servicesGrid');
   grid.innerHTML = '';
 
-  // Agrupamos los servicios por categoría (subtítulo). Los que no
-  // tengan categoría asignada caen en "Otros servicios".
+  // Agrupamos por categoría. Cada categoría es una fila con su propio
+  // carrusel horizontal (flechas + scroll), como en las tiendas grandes.
   const groups = [];
   const groupIndex = {};
   services.forEach((s, i)=>{
@@ -53,17 +53,20 @@ function renderServices(){
   });
 
   groups.forEach(group=>{
-    const groupEl = document.createElement('div');
-    groupEl.className = 'category-group';
-    groupEl.dataset.category = group.category;
+    const row = document.createElement('div');
+    row.className = 'category-row';
+    row.innerHTML = `
+      <div class="category-row-head">
+        <h3>${escapeHtml(group.category)}<span class="count">(${group.items.length})</span></h3>
+      </div>
+      <div class="category-carousel-wrap">
+        <button type="button" class="category-arrow left" aria-label="Anterior">&#8249;</button>
+        <div class="category-carousel"></div>
+        <button type="button" class="category-arrow right" aria-label="Siguiente">&#8250;</button>
+      </div>
+    `;
 
-    const title = document.createElement('h3');
-    title.className = 'category-title';
-    title.innerHTML = `${escapeHtml(group.category)} <span class="count">(${group.items.length})</span>`;
-    groupEl.appendChild(title);
-
-    const cardsGrid = document.createElement('div');
-    cardsGrid.className = 'grid';
+    const track = row.querySelector('.category-carousel');
 
     group.items.forEach(({ s, i })=>{
       const card = document.createElement('div');
@@ -111,11 +114,16 @@ function renderServices(){
         }
       });
 
-      cardsGrid.appendChild(card);
+      track.appendChild(card);
     });
 
-    groupEl.appendChild(cardsGrid);
-    grid.appendChild(groupEl);
+    const leftBtn = row.querySelector('.category-arrow.left');
+    const rightBtn = row.querySelector('.category-arrow.right');
+    const scrollStep = ()=> (track.querySelector('.card')?.getBoundingClientRect().width || 228) + 18;
+    leftBtn.addEventListener('click', ()=> track.scrollBy({ left: -scrollStep()*2, behavior:'smooth' }));
+    rightBtn.addEventListener('click', ()=> track.scrollBy({ left: scrollStep()*2, behavior:'smooth' }));
+
+    grid.appendChild(row);
   });
 
   renderCategoryFilters();
@@ -162,10 +170,10 @@ function applyCatalogSearch(rawQuery){
   const q = (rawQuery||'').trim().toLowerCase();
   let anyVisible = false;
 
-  grid.querySelectorAll('.category-group').forEach(groupEl=>{
-    let groupHasVisible = false;
+  grid.querySelectorAll('.category-row').forEach(row=>{
+    let rowHasVisible = false;
 
-    groupEl.querySelectorAll('.card').forEach(card=>{
+    row.querySelectorAll('.card').forEach(card=>{
       const s = services[Number(card.dataset.serviceIndex)];
       if(!s){ card.style.display = ''; return; }
       const cat = (s.category||'').trim() || 'Otros servicios';
@@ -174,10 +182,10 @@ function applyCatalogSearch(rawQuery){
       const matchesQuery = !q || haystack.includes(q);
       const match = matchesCategory && matchesQuery;
       card.style.display = match ? '' : 'none';
-      if(match){ groupHasVisible = true; anyVisible = true; }
+      if(match){ rowHasVisible = true; anyVisible = true; }
     });
 
-    groupEl.style.display = groupHasVisible ? '' : 'none';
+    row.style.display = rowHasVisible ? '' : 'none';
   });
 
   if(noResults) noResults.style.display = anyVisible ? 'none' : 'block';
