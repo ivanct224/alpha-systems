@@ -68,11 +68,23 @@ function renderServicesAdmin(){
         <button class="del" data-del>&times;</button>
       </div>
       <div class="field">
-        <label>Foto del servicio (recomendada 4:3, ej. 800×600)</label>
+        <label>Foto principal (recomendada 4:3, ej. 800×600) — es la que se ve en la tarjeta del catálogo</label>
         <input type="file" accept="image/*" data-imgupload>
         <div data-imgpreview style="margin-top:10px;">
           ${s.imageUrl ? `<img src="${s.imageUrl}" style="width:100%; max-height:160px; object-fit:cover; border-radius:8px; display:block;">
             <button class="btn ghost small" data-imgremove style="margin-top:8px;">Quitar imagen</button>` : ''}
+        </div>
+      </div>
+      <div class="field">
+        <label>Galería adicional (más fotos que se ven en la página del producto, tipo tienda online)</label>
+        <input type="file" accept="image/*" multiple data-galleryupload>
+        <div class="gallery-thumbs" data-gallerypreview>
+          ${(s.images||[]).map((url, gi)=>`
+            <div class="gallery-thumb" data-gallery-index="${gi}">
+              <img src="${url}">
+              <button type="button" class="gallery-thumb-del" data-galleryremove="${gi}">&times;</button>
+            </div>
+          `).join('')}
         </div>
       </div>
       <div class="field">
@@ -129,6 +141,55 @@ function renderServicesAdmin(){
         toast('Imagen quitada');
       });
     }
+
+    /* Galería adicional: se puede subir más de una foto a la vez;
+       cada URL se agrega al arreglo "images" del servicio. */
+    const galleryInput = row.querySelector('[data-galleryupload]');
+    const galleryPreview = row.querySelector('[data-gallerypreview]');
+    function renderGalleryThumb(url, idx){
+      const thumb = document.createElement('div');
+      thumb.className = 'gallery-thumb';
+      thumb.innerHTML = `<img src="${url}"><button type="button" class="gallery-thumb-del">&times;</button>`;
+      thumb.querySelector('.gallery-thumb-del').addEventListener('click', async ()=>{
+        s.images = (s.images||[]).filter(u=> u !== url);
+        await db.collection('services').doc(s.id).set({ images: s.images }, { merge:true });
+        thumb.remove();
+        toast('Foto quitada de la galería');
+      });
+      return thumb;
+    }
+    galleryPreview.querySelectorAll('[data-galleryremove]').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const url = (s.images||[])[Number(btn.getAttribute('data-galleryremove'))];
+        s.images = (s.images||[]).filter(u=> u !== url);
+        await db.collection('services').doc(s.id).set({ images: s.images }, { merge:true });
+        btn.closest('.gallery-thumb').remove();
+        toast('Foto quitada de la galería');
+      });
+    });
+    galleryInput?.addEventListener('change', async ()=>{
+      const files = Array.from(galleryInput.files || []);
+      if(!files.length) return;
+      toast('Subiendo fotos...');
+      try{
+        for(const file of files){
+          if(!file.type.startsWith('image/')) continue;
+          const path = `services/${s.id}/gallery/${Date.now()}_${file.name}`;
+          const ref = storage.ref().child(path);
+          await ref.put(file);
+          const url = await ref.getDownloadURL();
+          s.images = [...(s.images||[]), url];
+          await db.collection('services').doc(s.id).set({ images: s.images }, { merge:true });
+          galleryPreview.appendChild(renderGalleryThumb(url));
+        }
+        toast('Galería actualizada');
+      }catch(err){
+        console.error(err);
+        toast('No se pudieron subir algunas fotos. Revisá los permisos de Storage.');
+      }
+      galleryInput.value = '';
+    });
+
     row.querySelectorAll('[data-field]').forEach(inp=>{
       inp.addEventListener('change', async ()=>{
         const field = inp.getAttribute('data-field');
@@ -321,6 +382,7 @@ function renderReviewsAdmin(){
         item.className = 'request-item';
         item.innerHTML = `
           <strong>${escapeHtml(r.name)}</strong> — ${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}
+          ${r.serviceTitle ? `<div class="meta">Servicio: ${escapeHtml(r.serviceTitle)}</div>` : '<div class="meta">Reseña general del sitio</div>'}
           <p style="margin-top:6px;">${escapeHtml(r.comment)}</p>
           <button class="btn ghost small" data-del style="margin-top:8px;">Borrar reseña</button>
         `;
