@@ -38,54 +38,84 @@ db.collection('services').orderBy('order').onSnapshot((snap)=>{
 function renderServices(){
   const grid = document.getElementById('servicesGrid');
   grid.innerHTML = '';
+
+  // Agrupamos los servicios por categoría (subtítulo). Los que no
+  // tengan categoría asignada caen en "Otros servicios".
+  const groups = [];
+  const groupIndex = {};
   services.forEach((s, i)=>{
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.dataset.serviceIndex = i;
-    card.setAttribute('tabindex', '0');
-    card.setAttribute('role', 'button');
-    card.setAttribute('aria-label', `Ver detalle de ${s.title||'servicio'}`);
+    const cat = (s.category||'').trim() || 'Otros servicios';
+    if(!(cat in groupIndex)){
+      groupIndex[cat] = groups.length;
+      groups.push({ category: cat, items: [] });
+    }
+    groups[groupIndex[cat]].items.push({ s, i });
+  });
 
-    const summary = (s.desc && s.desc.trim())
-      ? s.desc
-      : ((s.items||[])[0] || 'Servicio profesional de sistemas y soporte técnico.');
+  groups.forEach(group=>{
+    const groupEl = document.createElement('div');
+    groupEl.className = 'category-group';
+    groupEl.dataset.category = group.category;
 
-    const mediaStyle = s.imageUrl
-      ? ` style="background-image:linear-gradient(180deg, rgba(22,58,92,0.05) 0%, rgba(22,58,92,0.55) 100%), url('${s.imageUrl}')"`
-      : '';
+    const title = document.createElement('h3');
+    title.className = 'category-title';
+    title.innerHTML = `${escapeHtml(group.category)} <span class="count">(${group.items.length})</span>`;
+    groupEl.appendChild(title);
 
-    card.innerHTML = `
-      <div class="card-media"${mediaStyle}>
-        <span class="code">MOD-0${i+1}</span>
-        <button class="wa-btn" type="button" data-wa-reserve aria-label="Reservar ${escapeHtml(s.title||'este servicio')} por WhatsApp">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5Z"/><path d="M8.5 10.5c0 2.8 2.2 5 5 5"/></svg>
-          Reservar
-        </button>
-      </div>
-      <div class="card-body">
-        ${s.category ? `<span class="card-category">${escapeHtml(s.category)}</span>` : ''}
-        <div class="card-title-row">
-          <h3>${escapeHtml(s.title||'')}</h3>
-          ${s.price ? `<span class="price-tag">${escapeHtml(s.price)}</span>` : ''}
+    const cardsGrid = document.createElement('div');
+    cardsGrid.className = 'grid';
+
+    group.items.forEach(({ s, i })=>{
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.dataset.serviceIndex = i;
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', `Ver detalle de ${s.title||'servicio'}`);
+
+      const summary = (s.desc && s.desc.trim())
+        ? s.desc
+        : ((s.items||[])[0] || 'Servicio profesional de sistemas y soporte técnico.');
+
+      const mediaStyle = s.imageUrl
+        ? ` style="background-image:linear-gradient(180deg, rgba(22,58,92,0.05) 0%, rgba(22,58,92,0.55) 100%), url('${s.imageUrl}')"`
+        : '';
+
+      card.innerHTML = `
+        <div class="card-media"${mediaStyle}>
+          <span class="code">MOD-0${i+1}</span>
+          <button class="wa-btn" type="button" data-wa-reserve aria-label="Reservar ${escapeHtml(s.title||'este servicio')} por WhatsApp">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5Z"/><path d="M8.5 10.5c0 2.8 2.2 5 5 5"/></svg>
+            Reservar
+          </button>
         </div>
-        <p class="summary">${escapeHtml(summary)}</p>
-        <span class="view-detail">Ver detalle →</span>
-      </div>
-    `;
+        <div class="card-body">
+          <div class="card-title-row">
+            <h3>${escapeHtml(s.title||'')}</h3>
+            ${s.price ? `<span class="price-tag">${escapeHtml(s.price)}</span>` : ''}
+          </div>
+          <p class="summary">${escapeHtml(summary)}</p>
+          <span class="view-detail">Ver detalle →</span>
+        </div>
+      `;
 
-    card.querySelector('[data-wa-reserve]').addEventListener('click', (e)=>{
-      e.stopPropagation();
-      reserveServiceOnWhatsapp(s);
-    });
-    card.addEventListener('click', ()=> openServiceDetail(i));
-    card.addEventListener('keydown', (e)=>{
-      if(e.key === 'Enter' || e.key === ' '){
-        e.preventDefault();
-        openServiceDetail(i);
-      }
+      card.querySelector('[data-wa-reserve]').addEventListener('click', (e)=>{
+        e.stopPropagation();
+        reserveServiceOnWhatsapp(s);
+      });
+      card.addEventListener('click', ()=> openServiceDetail(i));
+      card.addEventListener('keydown', (e)=>{
+        if(e.key === 'Enter' || e.key === ' '){
+          e.preventDefault();
+          openServiceDetail(i);
+        }
+      });
+
+      cardsGrid.appendChild(card);
     });
 
-    grid.appendChild(card);
+    groupEl.appendChild(cardsGrid);
+    grid.appendChild(groupEl);
   });
 
   renderCategoryFilters();
@@ -132,15 +162,22 @@ function applyCatalogSearch(rawQuery){
   const q = (rawQuery||'').trim().toLowerCase();
   let anyVisible = false;
 
-  grid.querySelectorAll('.card').forEach(card=>{
-    const s = services[Number(card.dataset.serviceIndex)];
-    if(!s){ card.style.display = ''; return; }
-    const matchesCategory = currentCategory === 'todos' || (s.category||'').trim() === currentCategory;
-    const haystack = [s.title, s.desc, s.category, ...(s.items||[])].filter(Boolean).join(' ').toLowerCase();
-    const matchesQuery = !q || haystack.includes(q);
-    const match = matchesCategory && matchesQuery;
-    card.style.display = match ? '' : 'none';
-    if(match) anyVisible = true;
+  grid.querySelectorAll('.category-group').forEach(groupEl=>{
+    let groupHasVisible = false;
+
+    groupEl.querySelectorAll('.card').forEach(card=>{
+      const s = services[Number(card.dataset.serviceIndex)];
+      if(!s){ card.style.display = ''; return; }
+      const cat = (s.category||'').trim() || 'Otros servicios';
+      const matchesCategory = currentCategory === 'todos' || cat === currentCategory;
+      const haystack = [s.title, s.desc, s.category, ...(s.items||[])].filter(Boolean).join(' ').toLowerCase();
+      const matchesQuery = !q || haystack.includes(q);
+      const match = matchesCategory && matchesQuery;
+      card.style.display = match ? '' : 'none';
+      if(match){ groupHasVisible = true; anyVisible = true; }
+    });
+
+    groupEl.style.display = groupHasVisible ? '' : 'none';
   });
 
   if(noResults) noResults.style.display = anyVisible ? 'none' : 'block';
