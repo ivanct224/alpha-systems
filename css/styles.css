@@ -183,6 +183,23 @@ header .btn.small:hover{background:rgba(255,255,255,0.88); border-color:rgba(255
 .category-chip:hover{border-color:var(--navy); color:var(--navy);}
 .category-chip.active{background:var(--navy); border-color:var(--navy); color:#fff;}
 
+/* ---------- Agrupación de "Áreas de trabajo" por categoría ---------- */
+.category-group{max-width:1180px; margin:0 auto 44px;}
+.category-group:last-child{margin-bottom:0;}
+.category-title{
+  display:flex; align-items:center; gap:10px;
+  font-family:'Consolas',monospace; font-size:13px; font-weight:700;
+  letter-spacing:0.1em; text-transform:uppercase; color:var(--navy);
+  margin:0 0 16px;
+}
+.category-title::before{
+  content:''; width:22px; height:2px; background:var(--navy); border-radius:2px; flex-shrink:0;
+}
+.category-title .count{
+  font-family:'Consolas',monospace; font-weight:400; font-size:11px;
+  letter-spacing:0.02em; text-transform:none; color:var(--steel);
+}
+
 @media (max-width:480px){
   .grid{grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:14px;}
   .card-media{padding:8px;}
