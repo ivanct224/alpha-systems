@@ -51,7 +51,7 @@ function renderServices(){
       : ((s.items||[])[0] || 'Servicio profesional de sistemas y soporte técnico.');
 
     const mediaStyle = s.imageUrl
-      ? ` style="background-image:linear-gradient(180deg, rgba(22,58,92,0.05) 0%, rgba(22,58,92,0.55) 100%), url('${s.imageUrl}')"`
+      ? ` style="background-image:linear-gradient(180deg, rgba(10,22,36,0.28) 0%, rgba(10,22,36,0) 28%, rgba(10,22,36,0) 72%, rgba(10,22,36,0.32) 100%), url('${s.imageUrl}')"`
       : '';
 
     card.innerHTML = `
