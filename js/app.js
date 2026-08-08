@@ -57,9 +57,9 @@ function renderServices(){
     card.innerHTML = `
       <div class="card-media"${mediaStyle}>
         <span class="code">MOD-0${i+1}</span>
-        <button class="wa-btn" type="button" data-wa-reserve aria-label="Reservar ${escapeHtml(s.title||'este servicio')} por WhatsApp">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5Z"/><path d="M8.5 10.5c0 2.8 2.2 5 5 5"/></svg>
-          Reservar
+        <button class="wa-btn" type="button" data-add-cart aria-label="Agregar ${escapeHtml(s.title||'este servicio')} al carro">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.4l1.9 11.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H6.2"/></svg>
+          Agregar al carro
         </button>
       </div>
       <div class="card-body">
@@ -73,9 +73,9 @@ function renderServices(){
       </div>
     `;
 
-    card.querySelector('[data-wa-reserve]').addEventListener('click', (e)=>{
+    card.querySelector('[data-add-cart]').addEventListener('click', (e)=>{
       e.stopPropagation();
-      reserveServiceOnWhatsapp(s);
+      addToCart(s);
     });
     card.addEventListener('click', ()=> openServiceDetail(i));
     card.addEventListener('keydown', (e)=>{
@@ -183,6 +183,183 @@ function reserveServiceOnWhatsapp(s){
   window.open(`https://wa.me/${settings.whatsapp}?text=${msg}`, '_blank');
 }
 
+/* ---------- CARRITO DE COMPRA ----------
+   El carrito vive en localStorage para que no se pierda si el
+   usuario recarga la página. Cada ítem guarda id, título, precio
+   (texto tal cual lo cargó el admin), imagen y cantidad. */
+let cart = [];
+try{
+  cart = JSON.parse(localStorage.getItem('alphaCart') || '[]');
+}catch(e){ cart = []; }
+
+function saveCart(){
+  try{ localStorage.setItem('alphaCart', JSON.stringify(cart)); }catch(e){}
+}
+
+function parsePriceValue(priceStr){
+  if(!priceStr) return null;
+  const match = String(priceStr).replace(/\./g,'').match(/\d+/);
+  return match ? parseInt(match[0], 10) : null;
+}
+
+function formatCLP(n){
+  return '$' + n.toLocaleString('es-CL');
+}
+
+function updateCartBadge(){
+  const totalQty = cart.reduce((sum, it)=> sum + it.qty, 0);
+  ['cartBadge','cartBadgeMobile'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = totalQty;
+  });
+}
+
+function addToCart(s){
+  const existing = cart.find(it=> it.id === s.id);
+  if(existing){
+    existing.qty += 1;
+  } else {
+    cart.push({
+      id: s.id,
+      title: s.title || 'Servicio',
+      price: s.price || '',
+      imageUrl: s.imageUrl || '',
+      qty: 1
+    });
+  }
+  saveCart();
+  updateCartBadge();
+  renderCart();
+  toast(`"${s.title||'Servicio'}" agregado al carrito`);
+}
+
+function removeFromCart(id){
+  cart = cart.filter(it=> it.id !== id);
+  saveCart();
+  updateCartBadge();
+  renderCart();
+}
+
+function changeCartQty(id, delta){
+  const item = cart.find(it=> it.id === id);
+  if(!item) return;
+  item.qty += delta;
+  if(item.qty <= 0){
+    removeFromCart(id);
+    return;
+  }
+  saveCart();
+  updateCartBadge();
+  renderCart();
+}
+
+function renderCart(){
+  const list = document.getElementById('cartItemsList');
+  const empty = document.getElementById('cartEmptyState');
+  const summary = document.getElementById('cartSummary');
+  const totalNote = document.getElementById('cartTotalNote');
+  if(!list) return;
+
+  if(cart.length === 0){
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    summary.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  summary.style.display = 'block';
+
+  let total = 0;
+  let hasUnpriced = false;
+
+  list.innerHTML = cart.map(it=>{
+    const unit = parsePriceValue(it.price);
+    if(unit === null){
+      hasUnpriced = true;
+    } else {
+      total += unit * it.qty;
+    }
+    const mediaStyle = it.imageUrl ? ` style="background-image:url('${it.imageUrl}')"` : '';
+    const priceLabel = it.price ? escapeHtml(it.price) : 'Precio a cotizar';
+    return `
+      <div class="cart-item" data-cart-id="${escapeHtml(it.id)}">
+        <div class="cart-item-media"${mediaStyle}></div>
+        <div class="cart-item-info">
+          <h4>${escapeHtml(it.title)}</h4>
+          <span class="cart-item-price">${priceLabel}</span>
+        </div>
+        <div class="cart-item-controls">
+          <div class="qty-stepper">
+            <button type="button" data-qty-minus>−</button>
+            <span>${it.qty}</span>
+            <button type="button" data-qty-plus>+</button>
+          </div>
+          <button type="button" class="cart-item-remove" data-cart-remove>Quitar</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  list.querySelectorAll('[data-cart-id]').forEach(row=>{
+    const id = row.getAttribute('data-cart-id');
+    row.querySelector('[data-qty-minus]').addEventListener('click', ()=> changeCartQty(id, -1));
+    row.querySelector('[data-qty-plus]').addEventListener('click', ()=> changeCartQty(id, 1));
+    row.querySelector('[data-cart-remove]').addEventListener('click', ()=> removeFromCart(id));
+  });
+
+  document.getElementById('cartTotalValue').textContent = formatCLP(total);
+  if(hasUnpriced){
+    totalNote.style.display = 'block';
+    totalNote.textContent = '* Algunos servicios se cotizan según el caso; el total mostrado no los incluye.';
+  } else {
+    totalNote.style.display = 'none';
+  }
+}
+
+function openCartModal(){
+  renderCart();
+  document.getElementById('cartOverlay').classList.add('show');
+  attachCloseHandlers();
+}
+
+document.getElementById('openCartBtn')?.addEventListener('click', openCartModal);
+document.getElementById('openCartBtnMobile')?.addEventListener('click', ()=>{
+  closeMobileNavFromCart();
+  openCartModal();
+});
+function closeMobileNavFromCart(){
+  document.getElementById('mobileNav')?.classList.remove('show');
+  document.getElementById('mobileNavBackdrop')?.classList.remove('show');
+  document.getElementById('menuToggle')?.classList.remove('active');
+  document.getElementById('menuToggle')?.setAttribute('aria-expanded','false');
+}
+
+document.getElementById('cartReserveWaBtn')?.addEventListener('click', ()=>{
+  if(cart.length === 0) return;
+  if(!settings.whatsapp){
+    toast('Todavía no hay un WhatsApp configurado en el panel');
+    return;
+  }
+  let total = 0;
+  let hasUnpriced = false;
+  const lines = cart.map(it=>{
+    const unit = parsePriceValue(it.price);
+    if(unit === null){ hasUnpriced = true; } else { total += unit * it.qty; }
+    return `- ${it.title} x${it.qty}${it.price ? ` (${it.price})` : ''}`;
+  });
+  let msg = `Hola ALPHA SYSTEMS, quiero reservar estos servicios:\n${lines.join('\n')}`;
+  msg += `\n\nTotal estimado: ${formatCLP(total)}${hasUnpriced ? ' (+ servicios a cotizar)' : ''}`;
+  window.open(`https://wa.me/${settings.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
+  cart = [];
+  saveCart();
+  updateCartBadge();
+  renderCart();
+  document.getElementById('cartOverlay').classList.remove('show');
+  toast('¡Listo! Te esperamos en WhatsApp para confirmar la reserva.');
+});
+
+updateCartBadge();
+
 function openServiceDetail(i){
   const s = services[i];
   if(!s) return;
@@ -197,11 +374,11 @@ function openServiceDetail(i){
       <ul>${(s.items||[]).map(it=>`<li>${escapeHtml(it)}</li>`).join('')}</ul>
     </div>
     <div style="display:flex; flex-direction:column; gap:10px;">
-      <button class="btn small" id="reserveServiceWa" style="width:100%; justify-content:center;">Reservar por WhatsApp</button>
+      <button class="btn small" id="addServiceCart" style="width:100%; justify-content:center;">Agregar al carro</button>
     </div>
   `;
-  document.getElementById('reserveServiceWa').addEventListener('click', ()=>{
-    reserveServiceOnWhatsapp(s);
+  document.getElementById('addServiceCart').addEventListener('click', ()=>{
+    addToCart(s);
     document.getElementById('serviceOverlay').classList.remove('show');
   });
   document.getElementById('serviceOverlay').classList.add('show');
