@@ -189,7 +189,7 @@ function openServiceDetail(i){
   const box = document.getElementById('serviceDetailContent');
   box.innerHTML = `
     <div class="future-detail">
-      ${s.imageUrl ? `<img src="${s.imageUrl}" alt="${escapeHtml(s.title||'')}" style="width:100%; height:190px; object-fit:cover; border-radius:10px; margin-bottom:16px;">` : ''}
+    ${s.imageUrl ? `<img src="${s.imageUrl}" alt="${escapeHtml(s.title||'')}" style="width:100%; aspect-ratio:3/2; object-fit:cover; border-radius:10px; margin-bottom:16px;">` : ''}
       <span class="tag">MOD-0${i+1}</span>
       <h3>${escapeHtml(s.title||'')}</h3>
       ${s.price ? `<div class="detail-price">${escapeHtml(s.price)}</div>` : ''}
