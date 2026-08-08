@@ -312,6 +312,49 @@ footer{border-top:1px solid var(--line); padding:48px 24px 30px; margin-top:20px
 .modal .close{position:absolute; top:16px; right:18px; background:none; border:none; font-size:20px; cursor:pointer; color:var(--steel);}
 .modal-note{font-size:12px; color:var(--steel); margin-top:16px; line-height:1.5;}
 
+/* ---------- CARRITO DE COMPRA ---------- */
+.cart-btn{position:relative;}
+.cart-btn svg{width:16px; height:16px; stroke:currentColor; flex-shrink:0;}
+.cart-badge{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:18px; height:18px; padding:0 4px; border-radius:99px;
+  background:var(--navy); color:#fff; font-size:10.5px; font-weight:700;
+  font-family:'Consolas',monospace;
+}
+header .btn.small.cart-btn .cart-badge{background:var(--navy); color:#fff;}
+.mobile-nav .cart-btn .cart-badge{background:#fff; color:var(--navy);}
+
+.cart-item{
+  display:flex; align-items:center; gap:14px; padding:14px 0;
+  border-top:1px solid var(--line);
+}
+.cart-item:first-child{border-top:none;}
+.cart-item-media{
+  width:58px; height:58px; border-radius:8px; flex-shrink:0; background-size:cover; background-position:center;
+  background-color:var(--navy-deep);
+}
+.cart-item-info{flex:1; min-width:0;}
+.cart-item-info h4{font-size:14px; line-height:1.35; margin-bottom:2px;}
+.cart-item-price{font-family:'Consolas',monospace; font-size:12px; color:var(--steel);}
+.cart-item-controls{display:flex; align-items:center; gap:10px; flex-shrink:0;}
+.qty-stepper{display:flex; align-items:center; border:1px solid var(--line); border-radius:99px; overflow:hidden;}
+.qty-stepper button{
+  width:26px; height:26px; border:none; background:var(--bg); color:var(--navy);
+  font-size:15px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.qty-stepper button:hover{background:#EAF1F7;}
+.qty-stepper span{width:24px; text-align:center; font-family:'Consolas',monospace; font-size:12.5px;}
+.cart-item-remove{
+  background:none; border:none; color:var(--off); cursor:pointer; font-size:12px;
+  font-family:'Consolas',monospace; letter-spacing:0.03em; padding:4px;
+}
+.cart-item-remove:hover{text-decoration:underline;}
+.cart-total-row{
+  display:flex; align-items:center; justify-content:space-between; margin-top:18px;
+  padding-top:16px; border-top:1px solid var(--line); font-size:15px;
+}
+.cart-total-row strong{font-family:'Consolas',monospace; font-size:18px; color:var(--navy);}
+
 /* ---------- ADMIN LIST ---------- */
 .admin-list{margin-top:18px; display:flex; flex-direction:column; gap:12px;}
 .admin-item{border:1px solid var(--line); border-radius:10px; padding:14px; background:var(--bg);}
@@ -402,7 +445,7 @@ footer{border-top:1px solid var(--line); padding:48px 24px 30px; margin-top:20px
 
 @media (max-width:880px){
   .menu-toggle{display:flex;}
-  .nav > a.btn.small{display:none;}
+  .nav > .btn.small.cart-btn{display:none;}
 }
 
 /* ---------- RESEÑAS ---------- */
