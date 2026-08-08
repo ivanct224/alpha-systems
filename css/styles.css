@@ -124,7 +124,7 @@ header .btn.small:hover{background:rgba(255,255,255,0.88); border-color:rgba(255
 .card:hover{border-color:var(--navy); transform:translateY(-4px); box-shadow:0 16px 28px -20px rgba(28,37,48,0.38);}
 .card:focus-visible{outline:2px solid var(--navy); outline-offset:3px;}
 .card-media{
-  position:relative; width:100%; aspect-ratio:1/1;
+  position:relative; width:100%; aspect-ratio:3/2;
   background:
     radial-gradient(circle at 85% 12%, rgba(255,255,255,0.10), transparent 45%),
     linear-gradient(135deg, var(--navy-deep) 0%, var(--navy) 55%, #2C6494 100%);
