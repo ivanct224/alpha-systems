@@ -4,6 +4,7 @@
 
 let services = [];
 let settings = { whatsapp:"", instagram:"", tagline:"IC // Systems & Technology" };
+let currentCategory = 'todos';
 
 function toast(msg){
   const t = document.getElementById('toast');
@@ -93,8 +94,6 @@ function renderServices(){
 }
 
 /* ---------- FILTRO POR CATEGORÍA ---------- */
-let currentCategory = 'todos';
-
 function renderCategoryFilters(){
   const box = document.getElementById('categoryFilters');
   if(!box) return;
@@ -173,15 +172,6 @@ catalogSearchInput?.addEventListener('blur', ()=>{
     navSearchBox?.classList.remove('active');
   }
 });
-
-function reserveServiceOnWhatsapp(s){
-  if(!settings.whatsapp){
-    toast('Todavía no hay un WhatsApp configurado en el panel');
-    return;
-  }
-  const msg = encodeURIComponent(`Hola ALPHA SYSTEMS, quiero reservar/cotizar: ${s.title||''}`);
-  window.open(`https://wa.me/${settings.whatsapp}?text=${msg}`, '_blank');
-}
 
 /* ---------- CARRITO DE COMPRA ----------
    El carrito vive en localStorage para que no se pierda si el
@@ -516,16 +506,11 @@ function openFutureDetail(i){
       <ul>${(s.items||[]).map(it=>`<li>${escapeHtml(it)}</li>`).join('')}</ul>
     </div>
     <div style="display:flex; flex-direction:column; gap:10px;">
-      <button class="btn small" id="reserveOnWhatsapp" style="width:100%; justify-content:center;">Reservar por WhatsApp</button>
+      <button class="btn small" id="addFeaturedCart" style="width:100%; justify-content:center;">Agregar al carro</button>
     </div>
   `;
-  document.getElementById('reserveOnWhatsapp').addEventListener('click', ()=>{
-    if(!settings.whatsapp){
-      toast('Todavía no hay un WhatsApp configurado en el panel');
-      return;
-    }
-    const msg = encodeURIComponent(`Hola ALPHA SYSTEMS, quiero reservar/cotizar: ${s.title||''}`);
-    window.open(`https://wa.me/${settings.whatsapp}?text=${msg}`, '_blank');
+  document.getElementById('addFeaturedCart').addEventListener('click', ()=>{
+    addToCart(s);
     document.getElementById('futureOverlay').classList.remove('show');
     startFutureAutoplay();
   });
